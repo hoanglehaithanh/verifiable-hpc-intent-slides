@@ -1,0 +1,94 @@
+\section{Cơ sở lý thuyết và khoảng trống}
+
+\begin{frame}{Từ rigid job đến moldable job}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.31\textwidth}
+\begin{block}{Rigid}
+Một cấu hình duy nhất:
+\[
+p_j=p_j^{original}
+\]
+Scheduler chỉ quyết định thời điểm và vị trí chạy.
+\end{block}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{block}{Moldable}
+Nhiều cấu hình khả thi:
+\[
+\mathcal{P}_j=\{p_{j1},\ldots,p_{jk}\}
+\]
+Chọn profile trước khi job bắt đầu, allocation sau đó giữ nguyên.
+\end{block}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{block}{Malleable}
+Tài nguyên thay đổi trong runtime:
+\[
+p_j=p_j(t)
+\]
+\end{block}
+\end{column}
+\end{columns}
+\vspace{0.4em}
+Nghiên cứu này tập trung vào \textbf{moldability trước submission}, không thay đổi allocation khi job đang chạy.
+\end{frame}
+
+\begin{frame}{Moldable scheduling đã chứng minh giá trị của resource flexibility}
+Các nghiên cứu thường giải bài toán:
+\[
+\mathcal{P}_j\;\longrightarrow\;\text{profile selection}\;\longrightarrow\;\text{scheduling}
+\]
+\begin{itemize}
+    \item lựa chọn số processor hoặc node cho job;
+    \item đồng thời chọn profile và thời điểm bắt đầu;
+    \item tối ưu makespan, waiting time hoặc turnaround time;
+    \item multi-resource, QoS-aware và preference-aware scheduling;
+    \item online scheduling cho moldable jobs và workflows.
+\end{itemize}
+\begin{alertblock}{Kết luận từ literature}
+Nhiều resource alternatives có thể cải thiện makespan, utilization và throughput khi scheduler được phép nhìn thấy chúng.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Giả định phổ biến: profile set đã được biết}
+Các phương pháp moldable scheduling thường nhận:
+\[
+\mathcal{P}_j=\{p_{j1},p_{j2},\ldots,p_{jk}\}
+\qquad\text{hoặc}\qquad
+t_j(p)
+\]
+\begin{itemize}
+    \item profile do application developer khai báo;
+    \item performance curve có được từ profiling;
+    \item đủ historical executions;
+    \item hoặc profile space đã được định nghĩa trong mô hình toán học.
+\end{itemize}
+\vspace{0.3em}
+\textbf{Câu hỏi còn thiếu:} Làm sao hình thành các alternatives đáng tin cậy từ một request ban đầu vốn rigid?
+\end{frame}
+
+\begin{frame}{Các nhánh related work chưa được nối liền}
+\begin{enumerate}
+    \item \textbf{HPC scheduling:} tối ưu thứ tự, placement và backfilling nhưng thường nhận request đã có cấu trúc.
+    \item \textbf{Moldable scheduling:} khai thác nhiều profile nhưng giả định profile set đã tồn tại.
+    \item \textbf{Prediction và profiling:} dự đoán runtime, memory hoặc utilization nhưng khó với job mới và ít dữ liệu.
+    \item \textbf{Natural-language intent:} chuyển ngôn ngữ tự nhiên thành cấu trúc nhưng chưa chứng minh feasibility.
+    \item \textbf{LLM-assisted scheduling:} có reasoning đa mục tiêu nhưng không tự bảo đảm consistency và policy compliance.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Research gap: tạo ra profile có thể kiểm chứng trước scheduler}
+\begin{block}{Known}
+Moldable scheduling có thể tối ưu hệ thống khi tập resource alternatives đã được cung cấp.
+\end{block}
+\begin{block}{Limitation}
+Các phương pháp hiện tại giả định đầu vào đã có cấu trúc, profile set hoặc performance evidence đủ mạnh.
+\end{block}
+\begin{alertblock}{Unknown}
+Chưa rõ làm thế nào chuyển
+\[
+\text{rigid request}+\text{incomplete intent}+\text{cluster constraints}+\text{limited evidence}
+\]
+thành tập profiles vừa khả thi kỹ thuật, phù hợp intent, được cho phép và hữu ích cho scheduler.
+\end{alertblock}
+\end{frame}

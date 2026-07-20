@@ -1,0 +1,84 @@
+\section{Giải pháp đề xuất}
+
+\begin{frame}{Intent-conditioned constrained profile search}
+Mỗi profile có dạng:
+\[
+p=(partition,nodes,CPU,GPU,memory,walltime)
+\]
+Từ không gian cấu hình cluster $\mathcal{P}$, tìm:
+\[
+\mathcal{P}_j^{ICF}=\left\{p\in\mathcal{P}\mid C_{site}(p)\land C_{workload}(p)\land C_{intent}(p,I_j)\right\}
+\]
+\begin{itemize}
+    \item $C_{site}$: cluster và site-policy constraints;
+    \item $C_{workload}$: yêu cầu kỹ thuật của workload;
+    \item $C_{intent}$: intent và authorized flexibility.
+\end{itemize}
+Nếu có uncertainty, dùng $\hat{t}_j(p)\pm\epsilon_j(p)$ và chỉ chấp nhận profile an toàn dưới margin này.
+\end{frame}
+
+\begin{frame}{Kiến trúc giải pháp: diễn giải bằng LLM, quyết định bằng ràng buộc}
+\begin{center}
+\begin{tabular}{c}
+User intent + Slurm script\\[0.15em]
+$\Downarrow$\\[-0.1em]
+Intent interpretation $\rightarrow$ Structured Intent Representation\\[0.15em]
+$\Downarrow$\\[-0.1em]
+Candidate profile generation\\[0.15em]
+$\Downarrow$\\[-0.1em]
+Technical feasibility $\rightarrow$ Intent consistency $\rightarrow$ Performance estimation\\[0.15em]
+$\Downarrow$\\[-0.1em]
+Profile ranking / selection\\[0.15em]
+$\Downarrow$\\[-0.1em]
+Verified Slurm request $\rightarrow$ Existing scheduler
+\end{tabular}
+\end{center}
+\begin{alertblock}{Nguyên tắc thiết kế}
+LLM diễn giải intent; các ràng buộc quyết định được kiểm tra bằng thành phần deterministic.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{LLM không phải gap và không phải toàn bộ giải pháp}
+LLM được sử dụng cho:
+\[
+\text{natural-language intent}\;\longrightarrow\;\text{structured constraints}
+\]
+Các thành phần phải deterministic:
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{itemize}
+    \item parse Slurm directives;
+    \item kiểm tra schema;
+    \item kiểm tra partition và policy;
+    \item sinh candidate profile space.
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{itemize}
+    \item kiểm tra feasibility;
+    \item tính service units;
+    \item xác nhận constraint satisfaction;
+    \item log evidence cho audit.
+\end{itemize}
+\end{column}
+\end{columns}
+\[
+\text{LLM interpretation}+\text{constrained search}+\text{verification}
+\]
+\end{frame}
+
+\begin{frame}{“Có kiểm chứng” nghĩa là một quyết định có thể audit}
+Một profile được chấp nhận phải trả lời được:
+\begin{enumerate}
+    \item Có hợp lệ trên cluster không? Partition, CPU, GPU, memory và walltime có được hỗ trợ không?
+    \item Có khả thi đối với workload không? Job có chạy đúng và đạt yêu cầu đầu ra không?
+    \item Có nhất quán với intent không? Có vi phạm deadline, budget hoặc flexibility không?
+    \item Vì sao profile này được chọn? Evidence nào hỗ trợ quyết định?
+\end{enumerate}
+\begin{block}{Output}
+\[
+(profile,\ evidence,\ constraints,\ uncertainty)
+\]
+Không chỉ trả về một resource request, mà trả về một quyết định có thể truy vết.
+\end{block}
+\end{frame}

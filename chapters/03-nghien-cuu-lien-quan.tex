@@ -1,0 +1,84 @@
+\section{Mục tiêu và mô hình intent}
+
+\begin{frame}{Gap statement}
+\begin{block}{Phát biểu khoảng trống}
+Các phương pháp lập lịch cho moldable jobs thường giả định rằng cấu hình tài nguyên khả thi hoặc quan hệ giữa tài nguyên và thời gian thực thi đã biết trước. Giả định này không phù hợp với job mới, ít dữ liệu hoặc người dùng chưa có kinh nghiệm.
+\end{block}
+\begin{itemize}
+    \item \textbf{Gap chính:} methodological gap.
+    \item \textbf{Gap về giả định:} assumption gap.
+    \item \textbf{Gap hỗ trợ:} empirical gap.
+\end{itemize}
+\begin{alertblock}{Đích cần đạt}
+Chuyển request cố định và intent chưa đầy đủ thành tập profile khả thi, nhất quán với intent và có bằng chứng kiểm chứng.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}{Mục tiêu nghiên cứu}
+\begin{block}{Mục tiêu tổng quát}
+Xây dựng và đánh giá một phương pháp mô hình hóa ý định người dùng nhằm hình thành các resource profiles khả thi, nhất quán và có thể kiểm chứng trước khi submit job vào hệ thống HPC.
+\end{block}
+\begin{enumerate}
+    \item Xây dựng mô hình biểu diễn intent cho HPC jobs.
+    \item Phân biệt hard constraints, soft preferences và authorized flexibility.
+    \item Hình thành candidate profiles từ intent và cluster capabilities.
+    \item Kiểm tra technical feasibility và intent consistency.
+    \item Xếp hạng profile phù hợp với mục tiêu người dùng.
+    \item Đánh giá tác động trên scheduler hiện hữu.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Câu hỏi nghiên cứu}
+\begin{enumerate}
+    \item \textbf{RQ1 -- Intent representation:} Làm thế nào biểu diễn goal, constraint, preference, flexibility và thông tin chưa rõ?
+    \item \textbf{RQ2 -- Profile construction:} Làm thế nào chuyển intent, Slurm request, cluster constraints và limited evidence thành các profile khả thi?
+    \item \textbf{RQ3 -- Profile selection:} Làm thế nào chọn profile phù hợp khi performance evidence có uncertainty?
+    \item \textbf{RQ4 -- Scheduler-level utility:} Profile theo intent có cải thiện hiệu quả scheduler hiện hữu so với request ban đầu hay không?
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Phạm vi nghiên cứu}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Trong phạm vi}
+\begin{itemize}
+    \item batch jobs trên Slurm;
+    \item CPU, GPU, memory, partition và walltime;
+    \item intent đi kèm Slurm script;
+    \item chọn hoặc chỉnh profile trước submission;
+    \item allocation cố định khi job chạy;
+    \item scheduler hiện hữu không bị sửa đổi;
+    \item testbed thực và scheduler simulation.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{alertblock}{Ngoài phạm vi}
+\begin{itemize}
+    \item thay đổi allocation trong runtime;
+    \item phân tích toàn bộ source code;
+    \item tự sửa application để hỗ trợ scalability;
+    \item thiết kế scheduler mới;
+    \item fully autonomous submission không validation.
+\end{itemize}
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Intent Intermediate Representation}
+Với job $j$, intent được biểu diễn bởi:
+\[
+I_j=(G_j,C_j,F_j,P_j,U_j)
+\]
+\begin{itemize}
+    \item $G_j$: goal;
+    \item $C_j$: hard constraints;
+    \item $F_j$: authorized flexibility;
+    \item $P_j$: soft preferences;
+    \item $U_j$: uncertainty và unresolved information.
+\end{itemize}
+\begin{block}{Ví dụ}
+“Ưu tiên hoàn thành trước 18 giờ. Có thể dùng từ 2 đến 4 GPU. Nếu cả hai đều kịp deadline thì chọn cấu hình ít tốn quota hơn.”
+\end{block}
+\end{frame}

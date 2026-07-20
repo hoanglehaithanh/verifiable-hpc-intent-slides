@@ -1,0 +1,132 @@
+@article{Chen2023,
+  author    = {Fengxian Chen},
+  title     = {Job runtime prediction of HPC cluster based on PC-Transformer},
+  journal   = {The Journal of Supercomputing},
+  year      = {2023},
+  volume    = {79},
+  number    = {17},
+  pages     = {20208--20234},
+  doi       = {10.1007/s11227-023-05470-2},
+  url       = {https://doi.org/10.1007/s11227-023-05470-2},
+  abstract  = {Job scheduling of high performance cluster is a crucial task that affects the efficiency and performance of the system. The accuracy of job runtime prediction is one of the key factors that influences the quality of job scheduling. In this paper, we propose a novel method for job runtime prediction based on Transformer with plain connection and attention mechanism. The proposed method utilizes the job category information obtained by clustering the historical log datasets, and selects six-dimensional features that are highly correlated with job runtime. We divide the datasets into multiple job sets according to the length of job runtime, train and predict each job set separately. We evaluate the proposed method on the HPC2N dataset, and compare it with several existing methods. The results show that the proposed method achieves an average accuracy of 0.892, with 15.2\% MAPE, and outperforms other methods in terms of prediction performance and training time. The proposed method can be applied to improve the efficiency and quality of job scheduling in high performance cluster.},
+  issn      = {1573-0484}
+}
+
+@InProceedings{10.1007/978-981-96-0437-1_11,
+author="Hai, Thanh Hoang Le
+and Nguyen, Manh Thin
+and Nguyen, Quang Hung
+and Thoai, Nam",
+editor="Dang, Tran Khanh
+and K{\"u}ng, Josef
+and Chung, Tai M.",
+title="JREP - A Job Runtime Ensemble Predictor for Improving Scheduling Performance on High Performance Computing Systems",
+booktitle="Future Data and Security Engineering. Big Data, Security and Privacy, Smart City and Industry 4.0 Applications",
+year="2024",
+publisher="Springer Nature Singapore",
+address="Singapore",
+pages="144--157",
+abstract="Efficient resource utilization in High Performance Computing (HPC) systems heavily relies on accurate job runtime prediction. This paper introduces JREP (Job Runtime Ensemble Predictor), a novel ensemble learning approach combining multiple prediction techniques to enhance HPC job runtime estimation accuracy. We evaluate JREP using real-world datasets from production HPC systems and integrate it with deviation backfilling, a prediction-aware scheduling method. Our results demonstrate that JREP not only outperforms individual prediction methods in accuracy but also significantly improves scheduling performance. This work contributes to optimizing HPC operations through advanced machine learning, offering a promising direction for enhancing overall system efficiency in diverse and dynamic HPC environments.",
+isbn="978-981-96-0437-1"
+}
+
+@article{antici2025f,
+  title={F-DATA: A Fugaku Workload Dataset for Job-centric Predictive Modelling in HPC Systems},
+  author={Antici, Francesco and Bartolini, Andrea and Domke, Jens and Kiziltan, Zeynep and Yamamoto, Keiji},
+  journal={Scientific Data},
+  volume={12},
+  number={1},
+  pages={1321},
+  year={2025},
+  publisher={Nature Publishing Group UK London}
+}
+
+@inproceedings{antici2023pm100,
+  title={PM100: A job power consumption dataset of a large-scale production HPC system},
+  author={Antici, Francesco and Seyedkazemi Ardebili, Mohsen and Bartolini, Andrea and Kiziltan, Zeynep},
+  booktitle={Proceedings of the SC'23 Workshops of The International Conference on High Performance Computing, Network, Storage, and Analysis},
+  pages={1812--1819},
+  year={2023}
+}
+
+@article{FEITELSON20142967,
+title = {Experience with using the Parallel Workloads Archive},
+journal = {Journal of Parallel and Distributed Computing},
+volume = {74},
+number = {10},
+pages = {2967-2982},
+year = {2014},
+issn = {0743-7315},
+doi = {https://doi.org/10.1016/j.jpdc.2014.06.013},
+url = {https://www.sciencedirect.com/science/article/pii/S0743731514001154},
+author = {Dror G. Feitelson and Dan Tsafrir and David Krakov},
+keywords = {Workload log, Data quality, Parallel job scheduling},
+abstract = {Science is based upon observation. The scientific study of complex computer systems should therefore be based on observation of how they are used in practice, as opposed to how they are assumed to be used or how they were designed to be used. In particular, detailed workload logs from real computer systems are invaluable for research on performance evaluation and for designing new systems. Regrettably, workload data may suffer from quality issues that might distort the study results, just as scientific observations in other fields may suffer from measurement errors. The cumulative experience with the Parallel Workloads Archive, a repository of job-level usage data from large-scale parallel supercomputers, clusters, and grids, has exposed many such issues. Importantly, these issues were not anticipated when the data was collected, and uncovering them was not trivial. As the data in this archive is used in hundreds of studies, it is necessary to describe and debate procedures that may be used to improve its data quality. Specifically, we consider issues like missing data, inconsistent data, erroneous data, system configuration changes during the logging period, and unrepresentative user behavior. Some of these may be countered by filtering out the problematic data items. In other cases, being cognizant of the problems may affect the decision of which datasets to use. While grounded in the specific domain of parallel jobs, our findings and suggested procedures can also inform similar situations in other domains.}
+}
+
+@article{10.1109/TPDS.2007.70606,
+author = {Tsafrir, Dan and Etsion, Yoav and Feitelson, Dror G.},
+title = {Backfilling Using System-Generated Predictions Rather than User Runtime Estimates},
+year = {2007},
+issue_date = {June 2007},
+publisher = {IEEE Press},
+volume = {18},
+number = {6},
+issn = {1045-9219},
+url = {https://doi.org/10.1109/TPDS.2007.70606},
+doi = {10.1109/TPDS.2007.70606},
+abstract = {The most commonly used scheduling algorithm for parallel supercomputers is FCFS with backfilling, as originally introduced in the EASY scheduler. Backfilling means that short jobs are allowed to run ahead of their time provided they do not delay previously queued jobs (or at least the first queued job). To make such determinations possible, users are required to provide estimates of how long jobs will run, and jobs that violate these estimates are killed. Empirical studies have repeatedly shown that user estimates are inaccurate, and that system-generated predictions based on history may be significantly better. However, predictions have not been incorporated into production schedulers, partially due to a misconception (that we resolve) claiming inaccuracy actually improves performance, but mainly because underprediction is technically unacceptable: Users will not tolerate jobs being killed just because system predictions were too short. We solve this problem by divorcing kill-time from the runtime prediction and correcting predictions adaptively as needed if they are proved wrong. The end result is a surprisingly simple scheduler, which requires minimal deviations from current practices (e.g., using FCFS as the basis) and behaves exactly like EASY as far as users are concerned; nevertheless, it achieves significant improvements in performance, predictability, and accuracy. Notably, this is based on a very simple runtime predictor that just averages the runtimes of the last two jobs by the same user; counterintuitively, our results indicate that using recent data is more important than mining the history for similar jobs. All the techniques suggested in this paper can be used to enhance any backfilling algorithm and are not limited to EASY.},
+journal = {IEEE Trans. Parallel Distrib. Syst.},
+month = jun,
+pages = {789–803},
+numpages = {15},
+keywords = {EASY, EASY++, Parallel job scheduling, SJBF., backfilling, dynamic prediction correction, history-based predictions, performance metrics, runtime estimates, system-generated predictions}
+}
+
+@INPROCEEDINGS{9565177,
+  author={Le Hai, Thanh Hoang and La Hoang, Loc and Thoai, Nam},
+  booktitle={2021 International Conference on Computing, Computational Modelling and Applications (ICCMA)}, 
+  title={Potential of Applying kNN with Soft Walltime to Improve Scheduling Performance}, 
+  year={2021},
+  volume={},
+  number={},
+  pages={1-8},
+  keywords={Processor scheduling;Computational modeling;Simulation;High performance computing;Predictive models;Task analysis;high performance computing;job scheduling;backfilling;walltime prediction;soft walltime},
+  doi={10.1109/ICCMA53594.2021.00009}}
+
+@article{ZRIGUI202283,
+title = {Improving the performance of batch schedulers using online job runtime classification},
+journal = {Journal of Parallel and Distributed Computing},
+volume = {164},
+pages = {83-95},
+year = {2022},
+issn = {0743-7315},
+doi = {https://doi.org/10.1016/j.jpdc.2022.01.003},
+url = {https://www.sciencedirect.com/science/article/pii/S0743731522000090},
+author = {Salah Zrigui and Raphael Y. {de Camargo} and Arnaud Legrand and Denis Trystram},
+keywords = {HPC, Machine learning, Classification, Online scheduling},
+abstract = {Job scheduling in high-performance computing platforms is a hard problem that involves uncertainties on both the job arrival process and their execution times. Users typically provide only loose upper bounds for job execution times, which are not so useful for scheduling heuristics based on processing times. Previous studies focused on applying regression techniques to obtain better execution time estimates, which worked reasonably well and improved scheduling metrics. However, these approaches require a long period of training data. In this work, we propose a simpler approach by classifying jobs as small or large and prioritizing the execution of small jobs over large ones. Indeed, small jobs are the most impacted by queuing delays, but they typically represent a light load and incur a small burden on the other jobs. The classifier operates online and learns by using data collected over the previous weeks, facilitating its deployment and enabling a fast adaptation to changes in the workload characteristics. We evaluate our approach using four scheduling policies on seven HPC platform workload traces. We show that: first, incorporating such classification reduces the average bounded slowdown of jobs in all scenarios, second, in most considered scenarios, the improvements are comparable to the ideal hypothetical situation where the scheduler would know in advance the exact running time of jobs.}
+}
+
+@article{RAMACHANDRAN2024112053,
+title = {Combining Machine Learning techniques and Genetic Algorithm for predicting run times of High Performance Computing jobs},
+journal = {Applied Soft Computing},
+volume = {165},
+pages = {112053},
+year = {2024},
+issn = {1568-4946},
+doi = {https://doi.org/10.1016/j.asoc.2024.112053},
+url = {https://www.sciencedirect.com/science/article/pii/S1568494624008275},
+author = {Suja Ramachandran and M.L. Jayalal and M. Vasudevan and Sourish Das and R. Jehadeesan},
+keywords = {Genetic Algorithm, Machine Learning, High Performance Computing, Gradient Boosting, Neural Networks},
+abstract = {This study proposes a novel approach combining Machine Learning (ML) techniques and Genetic Algorithms (GA) for predicting High-Performance Computing (HPC) job run times. The objective is to create a prediction method universally applicable to any HPC system, irrespective of workload characteristics, application specific parameters, user behavior, or hardware architecture. Since user-supplied run time estimates are often inaccurate, we aim to categorize job runtimes into several classes, allowing users to select appropriate classes for their jobs. A Genetic Algorithm is developed to optimally define these runtime classes, determining both the number of classes and the time intervals represented by them. Four Machine Learning algorithms (K Nearest Neighbours, Support Vector Regression, Extreme Gradient Boosting and Deep Neural Networks) are implemented for run time prediction. A unique set of features extracted from historical job data serves as input to the Machine Learning models. The generalized nature of our method is demonstrated by validating its performance on data from six clusters with distinct configurations, applications and runtime distributions. Our results illustrate the superior performance of Machine Learning models incorporating GA-defined runtime classes for all datasets. Across all six datasets, our method achieves R2 scores exceeding 0.8, and accuracy greater than 0.7.}
+}
+
+@inproceedings{dutot2015batsim,
+  title={Batsim: a realistic language-independent resources and jobs management systems simulator},
+  author={Dutot, Pierre-Fran{\c{c}}ois and Mercier, Michael and Poquet, Millian and Richard, Olivier},
+  booktitle={Workshop on Job Scheduling Strategies for Parallel Processing},
+  pages={178--197},
+  year={2015},
+  organization={Springer}
+}

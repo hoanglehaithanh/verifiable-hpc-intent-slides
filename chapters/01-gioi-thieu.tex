@@ -1,0 +1,98 @@
+\section{Bối cảnh và vấn đề}
+
+\begin{frame}{Hệ thống HPC đang phục vụ workload ngày càng đa dạng}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.53\textwidth}
+\begin{itemize}
+    \item Mô phỏng song song CPU và MPI.
+    \item Huấn luyện, suy luận AI trên GPU.
+    \item Xử lý dữ liệu quy mô lớn.
+    \item Workflow nhiều giai đoạn.
+    \item Yêu cầu về deadline, chi phí, ưu tiên và chất lượng dịch vụ.
+\end{itemize}
+\end{column}
+\begin{column}{0.43\textwidth}
+\begin{block}{Thực tế giao tiếp hiện nay}
+Giao diện phổ biến giữa người dùng và scheduler vẫn là một batch script chứa yêu cầu tài nguyên cố định.
+\end{block}
+\begin{alertblock}{Hệ quả}
+Tài nguyên không đồng nhất, nhưng ngữ nghĩa của nhu cầu người dùng lại bị nén vào một cấu hình duy nhất.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Một resource request đang phải đại diện cho quá nhiều ý nghĩa}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\begin{block}{Ví dụ batch script}
+\texttt{\#SBATCH --partition=gpu}\\
+\texttt{\#SBATCH --gres=gpu:4}\\
+\texttt{\#SBATCH --cpus-per-task=16}\\
+\texttt{\#SBATCH --mem=64G}\\
+\texttt{\#SBATCH --time=02:00:00}
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+Một cấu hình duy nhất thường đồng thời được hiểu là:
+\begin{enumerate}
+    \item nhu cầu kỹ thuật tối thiểu;
+    \item cấu hình mong muốn;
+    \item giới hạn scheduler được phép chọn;
+    \item lựa chọn tối ưu của job.
+\end{enumerate}
+\end{column}
+\end{columns}
+\vspace{0.3em}
+Scheduler không biết 4 GPU là bắt buộc, bảo thủ, hay chỉ là một lựa chọn để đạt mục tiêu.
+\end{frame}
+
+\begin{frame}{Một request hợp lệ chưa chắc là một request hiệu quả}
+\begin{block}{Intent thực tế}
+“Tôi muốn job hoàn thành trước 18 giờ. Có thể giảm từ 4 xuống 2 GPU nếu vẫn kịp deadline và tiết kiệm quota.”
+\end{block}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\textbf{Batch script chỉ biểu diễn}
+\[
+GPU=4,\qquad walltime=2\,h
+\]
+\end{column}
+\begin{column}{0.47\textwidth}
+\textbf{Intent còn chứa}
+\begin{itemize}
+    \item deadline;
+    \item preference về chi phí;
+    \item khoảng linh hoạt được cho phép;
+    \item điều kiện chấp nhận cấu hình thay thế.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Khi intent không được biểu diễn, decision space bị thu hẹp}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\textbf{Đối với người dùng}
+\begin{itemize}
+    \item tăng thời gian chờ;
+    \item tiêu thụ quota không cần thiết;
+    \item bỏ lỡ deadline;
+    \item phải thử--sai nhiều lần.
+\end{itemize}
+\end{column}
+\begin{column}{0.47\textwidth}
+\textbf{Đối với hệ thống}
+\begin{itemize}
+    \item giảm khả năng backfilling;
+    \item giữ tài nguyên lớn cho job over-request;
+    \item giảm mức độ đồng thời;
+    \item tăng makespan, giảm utilization và throughput.
+\end{itemize}
+\end{column}
+\end{columns}
+\vspace{0.5em}
+\begin{alertblock}{Vấn đề cốt lõi}
+Scheduler không nhất thiết ra quyết định sai; scheduler chỉ được cung cấp một \textbf{decision space quá hẹp}.
+\end{alertblock}
+\end{frame}

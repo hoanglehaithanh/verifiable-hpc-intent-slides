@@ -1,0 +1,22 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# Local/generated files
+/main.pdf
+/tmp.tex
+/build/
+.DS_Store

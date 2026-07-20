@@ -1,0 +1,138 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usefonttheme{structurebold}
+\usefonttheme[onlymath]{serif}
+
+\definecolor{BKTemplate}{rgb}{0.11765, 0.30588, 0.47451}
+\usecolortheme[named=BKTemplate]{structure}
+\setbeamercolor{title}{fg=BKTemplate,bg=} 
+\setbeamertemplate{caption}[numbered]
+\definecolor{barBlue}{RGB}{52, 103, 176}
+\definecolor{barLightBlue}{RGB}{153, 204, 255}
+\definecolor{barOrange}{RGB}{230, 126, 34}
+\definecolor{barLightOrange}{RGB}{255, 204, 153}
+\definecolor{barGreen}{RGB}{46, 204, 113}
+\usepackage[vietnamese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{array}
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{microtype}      % microtypography
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{comment}
+\usepackage{forest}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{subcaption}
+% \captionsetup[subfigure]{labelsep=space}
+\usepackage{amsmath}
+\usepackage{dsfont}
+\usepackage{stmaryrd}
+\usepackage{tikz}
+% \usepackage[style=authortitle,backend=bibtex]{biblatex}
+\usepackage[backend=biber,style=numeric,sorting=none,language=english]{biblatex}
+\addbibresource{thesiscite.bib}
+
+\renewcommand{\footnotesize}{\tiny}
+\newcommand{\mathbi}[1]{\boldsymbol{#1}}
+\newtheorem{proposition}{Proposition}
+
+%------------------------------------------------------------
+%This block of code defines the information to appear in the
+\institute[HCMUT] % (optional)
+{
+  Đại học Quốc gia Thành phố Hồ Chí Minh \\
+  Trường Đại học Bách khoa \\
+  Khoa Khoa học và Kỹ thuật Máy tính
+}
+
+%Title page
+\title[Chuyên đề 1 tiến sĩ] %optional
+{\textbf{CHUYÊN ĐỀ 1 TIẾN SĨ \\ 
+Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệu quả Quá trình Định thời trên các Hệ thống Tính toán Hiệu năng cao}}
+
+\subtitle{}
+
+\author[Hoàng Lê Hải Thanh] % (optional)
+{
+  \texorpdfstring{%
+    \begin{tabular}{rl}
+    Họ tên NCS: & Hoàng Lê Hải Thanh \\
+    Khóa: & 242 \\
+    Mã số NCS: & 2480861 \\
+    Ngành: & Khoa học Máy tính \\
+    Khoa: & Khoa học và Kỹ thuật Máy tính \\
+    CBHD 1: & PGS.TS. Thoại Nam \\
+    CBHD 2: & TS. Nguyễn Lê Duy Lai \\
+    \end{tabular}
+  }{Hoàng Lê Hải Thanh}%
+}
+
+\date{}
+
+%End of title page configuration block
+%------------------------------------------------------------
+
+
+
+%------------------------------------------------------------
+%The next block of commands puts the table of contents at the 
+%beginning of each section and highlights the current section:
+
+% Section markers are kept for navigation, without inserting extra agenda
+% slides into the deck.
+%------------------------------------------------------------
+\setbeamertemplate{title page}
+{
+  \vspace{0.4cm}
+  \centering
+
+  {\usebeamerfont{institute}\insertinstitute\par}
+  \vspace{0.15cm}
+
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+  \vspace{0.1cm}
+
+  {\usebeamerfont{author}\small\insertauthor\par}
+  \vspace{0.05cm}
+
+  {\usebeamerfont{date}\insertdate\par}
+}
+
+\begin{document}
+
+% The next statement creates the title page.
+\setbeamertemplate{background canvas}{
+	\includegraphics[width=\paperwidth,height=\paperheight]{images/FrontBackground.pdf}
+}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+
+% Set background for all pages
+\setbeamertemplate{background canvas}{
+	\includegraphics[width=\paperwidth,height=\paperheight]{images/Background.pdf}
+}
+
+% \begin{frame}
+% \vspace{1cm}
+% To anyone you love...\\
+% \begin{flushright}
+%     Your Name
+% \end{flushright}
+% \end{frame}
+
+\input{chapters/01-gioi-thieu}
+\input{chapters/02-co-so-ly-thuyet}
+\input{chapters/03-nghien-cuu-lien-quan}
+\input{chapters/04-giai-phap-de-xuat}
+\input{chapters/05-ket-qua-thuc-nghiem}
+\input{chapters/06-ket-luan}
+\end{document}

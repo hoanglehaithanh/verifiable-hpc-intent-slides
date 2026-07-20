@@ -1,0 +1,223 @@
+\section{Thiết kế đánh giá}
+
+\begin{frame}{Từ rigid request đến moldable decision space}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.43\textwidth}
+\textbf{Slurm request ban đầu}
+\begin{block}{}
+\texttt{partition=gpu}\\
+\texttt{gres=gpu:4}\\
+\texttt{cpus-per-task=16}\\
+\texttt{mem=64G}\\
+\texttt{time=02:00:00}
+\end{block}
+\textbf{Intent:} cần hoàn thành trước 18 giờ; có thể giảm GPU nếu vẫn kịp và tiết kiệm quota.
+\end{column}
+\begin{column}{0.53\textwidth}
+\scriptsize
+\centering
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{lrrrr}
+\toprule
+Profile & GPU & Runtime & Units & Deadline\\
+\midrule
+$p_1$ & 1 & 5.2 h & thấp & Không đạt\\
+$p_2$ & 2 & 2.7 h & trung bình & Đạt\\
+$p_3$ & 4 & 1.6 h & cao & Đạt\\
+\bottomrule
+\end{tabular}
+\vspace{0.4em}
+\[
+\mathcal{P}_j^{ICF}=\{p_2,p_3\}
+\qquad p_j^*=p_2\;\text{nếu ưu tiên tiết kiệm quota}
+\]
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Thiết kế đánh giá tổng thể: ba tầng bằng chứng}
+\begin{enumerate}
+    \item \textbf{Intent correctness:} hệ thống có hiểu đúng goal, constraints, flexibility, preferences, ambiguity và conflict không?
+    \item \textbf{Profile correctness:} hệ thống có tìm đúng $\mathcal{P}_j^{ICF}$ so với ground truth từ profiling không?
+    \item \textbf{Scheduler utility:} profile được chọn có tốt hơn request ban đầu trên cùng scheduler, workload và cluster không?
+\end{enumerate}
+\begin{center}
+\[
+\text{intent correctness}\;\longrightarrow\;\text{profile correctness}\;\longrightarrow\;\text{scheduler utility}
+\]
+\end{center}
+\end{frame}
+
+\begin{frame}{E1 — Đánh giá intent interpretation}
+\textbf{Mục tiêu:} chuyển intent và script thành structured intent đúng và an toàn.
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\textbf{Dataset}
+\begin{itemize}
+    \item intent đầy đủ, thiếu constraint, mơ hồ;
+    \item xung đột với script;
+    \item nhiều preference;
+    \item không cho phép thay đổi resource.
+\end{itemize}
+\textbf{Baselines}
+\begin{itemize}
+    \item rule-based parser;
+    \item zero-shot và few-shot LLM;
+    \item LLM + schema + validator.
+\end{itemize}
+\end{column}
+\begin{column}{0.47\textwidth}
+\textbf{Metrics}
+\begin{itemize}
+    \item field-level Precision, Recall, F1;
+    \item exact match và schema validity;
+    \item missing-information detection;
+    \item conflict detection;
+    \item unsupported-field rate;
+    \item premature-commit rate.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{E2 — Đánh giá feasible profile search}
+\textbf{Ground truth:} chạy một tập profile có kiểm soát và ghi nhận:
+\[
+GPU\in\{1,2,4\},\quad CPU\in\{4,8,16\},\quad Memory\in\{16,32,64\}\,GB
+\]
+\begin{itemize}
+    \item chạy thành công hay thất bại;
+    \item output correctness, runtime và peak memory;
+    \item service-unit consumption;
+    \item xác định $\mathcal{P}_j^{GT}$.
+\end{itemize}
+\textbf{Metrics:} feasible-profile Precision/Recall, constraint violation rate, top-$k$ recall, Pareto coverage, unsafe recommendation rate và search cost.
+\end{frame}
+
+\begin{frame}{E3 — Đánh giá profile selection}
+\textbf{Các phương pháp so sánh}
+\begin{enumerate}
+    \item resource request ban đầu;
+    \item profile nhỏ nhất khả thi;
+    \item profile nhanh nhất;
+    \item profile ít service units nhất;
+    \item rule-based selection;
+    \item intent-conditioned selection;
+    \item oracle từ ground truth.
+\end{enumerate}
+\textbf{Metrics:} execution time, service-unit consumption, deadline/budget satisfaction, intent satisfaction và regret so với oracle.
+\[
+Regret_j=U(p_j^{selected})-U(p_j^{oracle})
+\]
+\end{frame}
+
+\begin{frame}{E4 — Đánh giá ở cấp scheduler, giữ nguyên scheduler}
+Hai workload chỉ khác resource profile:
+\[
+W^{original}=\{p_1^{original},\ldots,p_n^{original}\}
+\qquad
+W^{proposed}=\{p_1^*,\ldots,p_n^*\}
+\]
+Giữ nguyên:
+\begin{itemize}
+    \item arrival time và job priority;
+    \item scheduling policy và backfilling configuration;
+    \item cluster topology và workload composition.
+\end{itemize}
+\textbf{Metrics:} makespan, waiting time, turnaround time, bounded slowdown, utilization, throughput, deadline satisfaction, service units và intent violation rate.
+\end{frame}
+
+\begin{frame}{Kịch bản đánh giá scheduler}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\textbf{Tỷ lệ job có flexibility}
+\[
+0\%,20\%,40\%,60\%,80\%,100\%
+\]
+\textbf{Mức tải}
+\begin{itemize}
+    \item thấp; trung bình; cao.
+\end{itemize}
+\textbf{Đặc điểm workload}
+\begin{itemize}
+    \item CPU-dominant; GPU-dominant; mixed;
+    \item nhiều short jobs hoặc long jobs.
+\end{itemize}
+\end{column}
+\begin{column}{0.47\textwidth}
+\textbf{Chất lượng evidence}
+\begin{itemize}
+    \item đầy đủ;
+    \item sparse profiling;
+    \item runtime estimate có noise;
+    \item job mới không có history.
+\end{itemize}
+\begin{alertblock}{Mục tiêu}
+Xác định khi nào intent-derived profiles tạo ra giá trị, không chỉ báo cáo một kết quả trung bình.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Ablation study: thành phần nào tạo ra cải thiện?}
+So sánh hệ thống đầy đủ với các phiên bản:
+\begin{itemize}
+    \item không sử dụng intent;
+    \item không sử dụng performance evidence;
+    \item không kiểm tra authorized flexibility;
+    \item không có uncertainty margin;
+    \item không có deterministic verification;
+    \item không có Pareto ranking;
+    \item chỉ sử dụng request ban đầu.
+\end{itemize}
+\[
+\text{Intent modeling}+\text{constrained search}+\text{evidence}+\text{verification}
+\]
+\end{frame}
+
+\begin{frame}{Hạ tầng thực nghiệm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Testbed thực}
+\textbf{Cụm Slurm 5 node NVIDIA V100}
+\begin{itemize}
+    \item profiling profile space nhỏ;
+    \item kiểm tra correctness;
+    \item controlled experiments;
+    \item validation request rewriting.
+\end{itemize}
+\textbf{LANTA HPC:} external validation và portability sang cluster khác.
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Simulation}
+Sử dụng Batsim hoặc simulator tương đương để:
+\begin{itemize}
+    \item replay workload lớn;
+    \item thay đổi cluster load và arrival pattern;
+    \item đánh giá makespan, utilization;
+    \item chạy nhiều seed và sensitivity analysis.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Workloads đề xuất}
+\textbf{Tiêu chí lựa chọn}
+\begin{itemize}
+    \item chạy được với ít nhất hai resource profiles;
+    \item có runtime/resource trade-off đo được;
+    \item thời gian chạy đủ ngắn để lặp lại;
+    \item output correctness có thể kiểm tra;
+    \item đại diện cho workload hiện đại trong HPC.
+\end{itemize}
+\textbf{Nhóm workload}
+\begin{itemize}
+    \item CPU batch workload và MPI mini-application;
+    \item GPU training, inference hoặc batch processing;
+    \item data-processing workload;
+    \item workflow nhiều giai đoạn đơn giản.
+\end{itemize}
+Không khẳng định mọi application đều moldable; chỉ xét workload có alternatives hợp lệ.
+\end{frame}
