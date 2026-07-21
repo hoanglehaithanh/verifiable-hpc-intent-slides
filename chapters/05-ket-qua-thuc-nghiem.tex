@@ -1,223 +1,209 @@
-\section{Thiết kế đánh giá}
+\section{Kết quả thực nghiệm}
 
-\begin{frame}{Từ rigid request đến moldable decision space}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.43\textwidth}
-\textbf{Slurm request ban đầu}
-\begin{block}{}
-\texttt{partition=gpu}\\
-\texttt{gres=gpu:4}\\
-\texttt{cpus-per-task=16}\\
-\texttt{mem=64G}\\
-\texttt{time=02:00:00}
-\end{block}
-\textbf{Intent:} cần hoàn thành trước 18 giờ; có thể giảm GPU nếu vẫn kịp và tiết kiệm quota.
-\end{column}
-\begin{column}{0.53\textwidth}
+% Slide 35
+\begin{frame}[t,shrink=20]{Intent interpretation: kết quả tổng thể}
 \scriptsize
-\centering
-\renewcommand{\arraystretch}{1.35}
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.16}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lrrrr}
 \toprule
-Profile & GPU & Runtime & Units & Deadline\\
+Method & Field F1 & Schema validity & Unsupported & Premature commit \\
 \midrule
-$p_1$ & 1 & 5.2 h & thấp & Không đạt\\
-$p_2$ & 2 & 2.7 h & trung bình & Đạt\\
-$p_3$ & 4 & 1.6 h & cao & Đạt\\
+Raw template & 0.492 & 0.0\% & 0.0\% & 0.0\% \\
+Schema only & 0.646 & 93.3\% & 93.6\% & 22.5\% \\
+System + schema & 0.765 & 92.5\% & 37.6\% & 1.7\% \\
+Few-shot + schema & 0.776 & 97.5\% & 38.9\% & 10.8\% \\
+\textbf{Proposed} & \textbf{0.894} & \textbf{98.3\%} & \textbf{0.0\%} & \textbf{0.0\%} \\
 \bottomrule
-\end{tabular}
-\vspace{0.4em}
-\[
-\mathcal{P}_j^{ICF}=\{p_2,p_3\}
-\qquad p_j^*=p_2\;\text{nếu ưu tiên tiết kiệm quota}
-\]
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Thiết kế đánh giá tổng thể: ba tầng bằng chứng}
-\begin{enumerate}
-    \item \textbf{Intent correctness:} hệ thống có hiểu đúng goal, constraints, flexibility, preferences, ambiguity và conflict không?
-    \item \textbf{Profile correctness:} hệ thống có tìm đúng $\mathcal{P}_j^{ICF}$ so với ground truth từ profiling không?
-    \item \textbf{Scheduler utility:} profile được chọn có tốt hơn request ban đầu trên cùng scheduler, workload và cluster không?
-\end{enumerate}
-\begin{center}
-\[
-\text{intent correctness}\;\longrightarrow\;\text{profile correctness}\;\longrightarrow\;\text{scheduler utility}
-\]
+\end{tabular}%
+}
 \end{center}
-\end{frame}
-
-\begin{frame}{E1 — Đánh giá intent interpretation}
-\textbf{Mục tiêu:} chuyển intent và script thành structured intent đúng và an toàn.
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\textbf{Dataset}
-\begin{itemize}
-    \item intent đầy đủ, thiếu constraint, mơ hồ;
-    \item xung đột với script;
-    \item nhiều preference;
-    \item không cho phép thay đổi resource.
-\end{itemize}
-\textbf{Baselines}
-\begin{itemize}
-    \item rule-based parser;
-    \item zero-shot và few-shot LLM;
-    \item LLM + schema + validator.
-\end{itemize}
-\end{column}
-\begin{column}{0.47\textwidth}
-\textbf{Metrics}
-\begin{itemize}
-    \item field-level Precision, Recall, F1;
-    \item exact match và schema validity;
-    \item missing-information detection;
-    \item conflict detection;
-    \item unsupported-field rate;
-    \item premature-commit rate.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{E2 — Đánh giá feasible profile search}
-\textbf{Ground truth:} chạy một tập profile có kiểm soát và ghi nhận:
-\[
-GPU\in\{1,2,4\},\quad CPU\in\{4,8,16\},\quad Memory\in\{16,32,64\}\,GB
-\]
-\begin{itemize}
-    \item chạy thành công hay thất bại;
-    \item output correctness, runtime và peak memory;
-    \item service-unit consumption;
-    \item xác định $\mathcal{P}_j^{GT}$.
-\end{itemize}
-\textbf{Metrics:} feasible-profile Precision/Recall, constraint violation rate, top-$k$ recall, Pareto coverage, unsafe recommendation rate và search cost.
-\end{frame}
-
-\begin{frame}{E3 — Đánh giá profile selection}
-\textbf{Các phương pháp so sánh}
-\begin{enumerate}
-    \item resource request ban đầu;
-    \item profile nhỏ nhất khả thi;
-    \item profile nhanh nhất;
-    \item profile ít service units nhất;
-    \item rule-based selection;
-    \item intent-conditioned selection;
-    \item oracle từ ground truth.
-\end{enumerate}
-\textbf{Metrics:} execution time, service-unit consumption, deadline/budget satisfaction, intent satisfaction và regret so với oracle.
-\[
-Regret_j=U(p_j^{selected})-U(p_j^{oracle})
-\]
-\end{frame}
-
-\begin{frame}{E4 — Đánh giá ở cấp scheduler, giữ nguyên scheduler}
-Hai workload chỉ khác resource profile:
-\[
-W^{original}=\{p_1^{original},\ldots,p_n^{original}\}
-\qquad
-W^{proposed}=\{p_1^*,\ldots,p_n^*\}
-\]
-Giữ nguyên:
-\begin{itemize}
-    \item arrival time và job priority;
-    \item scheduling policy và backfilling configuration;
-    \item cluster topology và workload composition.
-\end{itemize}
-\textbf{Metrics:} makespan, waiting time, turnaround time, bounded slowdown, utilization, throughput, deadline satisfaction, service units và intent violation rate.
-\end{frame}
-
-\begin{frame}{Kịch bản đánh giá scheduler}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\textbf{Tỷ lệ job có flexibility}
-\[
-0\%,20\%,40\%,60\%,80\%,100\%
-\]
-\textbf{Mức tải}
-\begin{itemize}
-    \item thấp; trung bình; cao.
-\end{itemize}
-\textbf{Đặc điểm workload}
-\begin{itemize}
-    \item CPU-dominant; GPU-dominant; mixed;
-    \item nhiều short jobs hoặc long jobs.
-\end{itemize}
-\end{column}
-\begin{column}{0.47\textwidth}
-\textbf{Chất lượng evidence}
-\begin{itemize}
-    \item đầy đủ;
-    \item sparse profiling;
-    \item runtime estimate có noise;
-    \item job mới không có history.
-\end{itemize}
-\begin{alertblock}{Mục tiêu}
-Xác định khi nào intent-derived profiles tạo ra giá trị, không chỉ báo cáo một kết quả trung bình.
+\begin{alertblock}{Thông điệp}
+deterministic validation tạo phần lớn safety gain.
 \end{alertblock}
-\end{column}
-\end{columns}
 \end{frame}
 
-\begin{frame}{Ablation study: thành phần nào tạo ra cải thiện?}
-So sánh hệ thống đầy đủ với các phiên bản:
+% Slide 36
+\begin{frame}[t,shrink=20]{Intent interpretation: các trường hợp còn khó}
+\scriptsize
+\vspace{0.15em}
+\textbf{Kết quả theo nhóm}\par
 \begin{itemize}
-    \item không sử dụng intent;
-    \item không sử dụng performance evidence;
-    \item không kiểm tra authorized flexibility;
-    \item không có uncertainty margin;
-    \item không có deterministic verification;
-    \item không có Pareto ranking;
-    \item chỉ sử dụng request ban đầu.
+\item paraphrase: F1 0.907;
+\item conflicting/ranked goals: 0.912;
+\item indirect requests: 0.861;
+\item compact syntax: 0.896.
 \end{itemize}
+\vspace{0.15em}
+\textbf{Field sai nhiều}\par
+\begin{itemize}
+\item primary goal;
+\item partition-change authorization;
+\item GPU range;
+\item resolution status;
+\item allowed partitions.
+\end{itemize}
+\begin{alertblock}{Kết luận}
+taxonomy và authorization semantics vẫn là bottleneck.
+\end{alertblock}
+\end{frame}
+
+% Slide 37
+\begin{frame}[t,shrink=20]{Profile feasibility và Pareto identification}
+\scriptsize
+\vspace{0.15em}
+\textbf{Confirmation set}\par
+\begin{itemize}
+\item 6 unseen jobs;
+\item 4 resource vectors;
+\item 72 measurements;
+\item median runtime CV 0.99\%.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Pareto identification}\par
+\begin{itemize}
+\item precision: 0.667;
+\item recall: 0.847.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Raw recommendation}\par
+\begin{itemize}
+\item feasible rate: 83.3\%;
+\item exact oracle match: 44.4\%.
+\end{itemize}
+\begin{alertblock}{Thông điệp}
+exact match không phản ánh đầy đủ utility equivalence.
+\end{alertblock}
+\end{frame}
+
+% Slide 38
+\begin{frame}[t,shrink=20]{Safety–coverage trade-off}
+\scriptsize
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.16}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+Policy & Commit rate & Feasible khi commit & Mean regret \\
+\midrule
+Original & 100.0\% & 66.7\% & 0.508 \\
+Forced recommendation & 100.0\% & 83.3\% & 0.183 \\
+\textbf{Probe-aware} & \textbf{38.9\%} & \textbf{100.0\%} & \textbf{0.020} \\
+Oracle & 100.0\% & 100.0\% & 0.000 \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
 \[
-\text{Intent modeling}+\text{constrained search}+\text{evidence}+\text{verification}
+\text{Higher committed safety}
+\Longleftrightarrow
+\text{Lower automation coverage}
 \]
+\begin{exampleblock}{Hình minh họa}
+commit rate và committed feasibility đặt cạnh nhau.
+\end{exampleblock}
 \end{frame}
 
-\begin{frame}{Hạ tầng thực nghiệm}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{Testbed thực}
-\textbf{Cụm Slurm 5 node NVIDIA V100}
+% Slide 39
+\begin{frame}[t,shrink=20]{Technical discontinuity tại biên 4 GPU}
+\scriptsize
 \begin{itemize}
-    \item profiling profile space nhỏ;
-    \item kiểm tra correctness;
-    \item controlled experiments;
-    \item validation request rewriting.
+\item 4 compatible jobs chạy thành công 12/12 repetitions;
+\item 2 incompatible jobs fail 6/6;
+\item failure xuất hiện ở preflight;
+\item exit code 2;
+\item không có compute result.
 \end{itemize}
-\textbf{LANTA HPC:} external validation và portability sang cluster khác.
-\end{block}
-\end{column}
-\begin{column}{0.47\textwidth}
-\begin{block}{Simulation}
-Sử dụng Batsim hoặc simulator tương đương để:
-\begin{itemize}
-    \item replay workload lớn;
-    \item thay đổi cluster load và arrival pattern;
-    \item đánh giá makespan, utilization;
-    \item chạy nhiều seed và sensitivity analysis.
-\end{itemize}
-\end{block}
-\end{column}
-\end{columns}
+\begin{alertblock}{Kết luận}
+feasibility phải được mô hình hóa bằng rule và preflight, không chỉ bằng predictor.
+\end{alertblock}
 \end{frame}
 
-\begin{frame}{Workloads đề xuất}
-\textbf{Tiêu chí lựa chọn}
+% Slide 40
+\begin{frame}[t,shrink=20]{Prediction và uncertainty}
+\scriptsize
+\vspace{0.15em}
+\textbf{Screening}\par
 \begin{itemize}
-    \item chạy được với ít nhất hai resource profiles;
-    \item có runtime/resource trade-off đo được;
-    \item thời gian chạy đủ ngắn để lặp lại;
-    \item output correctness có thể kiểm tra;
-    \item đại diện cho workload hiện đại trong HPC.
+\item factorized MAPE: 2.58\%;
+\item kNN MAPE: 3.77\%;
+\item monolithic MAPE: 19.54\%.
 \end{itemize}
-\textbf{Nhóm workload}
+\vspace{0.15em}
+\textbf{Confirmation}\par
 \begin{itemize}
-    \item CPU batch workload và MPI mini-application;
-    \item GPU training, inference hoặc batch processing;
-    \item data-processing workload;
-    \item workflow nhiều giai đoạn đơn giản.
+\item factorized MAPE: 21.04\%;
+\item kNN MAPE: 19.13\%;
+\item interval coverage: 94.12\%.
 \end{itemize}
-Không khẳng định mọi application đều moldable; chỉ xét workload có alternatives hợp lệ.
+\vspace{0.15em}
+\textbf{Interpretation}\par
+Whole-job và unseen-resource holdout cho kết quả khó hơn nhưng đáng tin cậy hơn.\par
+\end{frame}
+
+% Slide 41
+\begin{frame}[t,shrink=20]{Uncertainty thực sự thay đổi action}
+\scriptsize
+\begin{itemize}
+\item interval coverage: 94.1\%;
+\item schedule-probe rate: 61.1\%;
+\item 18/18 decisions có đầy đủ trace;
+\item 18/18 áp dụng đúng uncertainty threshold.
+\end{itemize}
+\begin{alertblock}{Thông điệp}
+uncertainty không chỉ được báo cáo hậu nghiệm mà được chuyển thành action.
+\end{alertblock}
+\begin{exampleblock}{Hình minh họa}
+\texttt{Interval narrow → commit}, \texttt{Interval wide → probe}.
+\end{exampleblock}
+\end{frame}
+
+% Slide 42
+\begin{frame}[t,shrink=20]{Queue-aware operational experiment}
+\scriptsize
+\vspace{0.15em}
+\textbf{Cluster states}\par
+\begin{itemize}
+\item mostly free;
+\item GPU fragmented;
+\item controlled 2-GPU pressure.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Treatments}\par
+\begin{itemize}
+\item original request;
+\item static Pareto;
+\item queue-aware Pareto.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Correctness}\par
+\begin{itemize}
+\item 81/81 executions hoàn tất;
+\item checksum đúng;
+\item intent violation bằng 0.
+\end{itemize}
+\end{frame}
+
+% Slide 43
+\begin{frame}[t,shrink=20]{Operational utility và trade-off}
+\scriptsize
+\vspace{0.15em}
+\textbf{Queue-aware so với original}\par
+\begin{itemize}
+\item fragmented: turnaround giảm trung bình 104.6 s;
+\item controlled pressure: giảm 104.8 s;
+\item mostly free: kém 11.1 s.
+\end{itemize}
+\vspace{0.15em}
+\textbf{GPU-seconds}\par
+Giảm trong mọi cluster state.\par
+\vspace{0.15em}
+\textbf{Makespan}\par
+Không cải thiện phổ quát; dưới pressure có thể kém original khoảng 35–43 s.\par
+\vspace{0.15em}
+\textbf{Kết luận}\par
+Queue-aware selection cải thiện user turnaround khi có pressure nhưng không đồng nghĩa với tối ưu batch makespan.\par
 \end{frame}

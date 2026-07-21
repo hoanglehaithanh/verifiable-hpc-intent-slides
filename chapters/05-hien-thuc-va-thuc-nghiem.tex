@@ -1,0 +1,96 @@
+\section{5. Hiện thực và thiết kế thực nghiệm}
+
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{5. Hiện thực và thiết kế thực nghiệm}}
+\vfill
+\end{frame}
+
+% Source slide 36
+\begin{frame}[t,shrink=20]{5.1. Kiến trúc MVP}
+\small
+MVP gồm các thành phần chính:\par
+\begin{itemize}
+\item Slurm script parser;
+\item intent provider;
+\item intent schema và validator;
+\item workload manifest;
+\item candidate generator;
+\item runtime/memory predictor;
+\item Pareto selector;
+\item queue-state adapter;
+\item evidence recorder;
+\item script rewriter;
+\item submit và collect pipeline.
+\end{itemize}
+\end{frame}
+
+% Source slide 37
+\begin{frame}[t,shrink=20]{5.2. Quy trình sử dụng MVP}
+\small
+Quy trình sử dụng:\par
+\begin{enumerate}
+\item User thêm \texttt{\#INTENT} vào Slurm script.
+\item MVP parse script và intent.
+\item MVP tạo context từ quota, queue state và workload evidence.
+\item MVP sinh và xếp hạng candidate profiles.
+\item MVP hiển thị recommendation, prediction, interval và evidence.
+\item User xác nhận hoặc yêu cầu probe.
+\item MVP rewrite script và submit.
+\item Kết quả thực được thu lại để bổ sung evidence.
+\end{enumerate}
+\end{frame}
+
+% Source slide 38
+\begin{frame}[t,shrink=20]{5.3. Môi trường thực nghiệm}
+\small
+Cluster thực nghiệm:\par
+\begin{itemize}
+\item Slurm 22.05.9;
+\item 3 configured nodes;
+\item 24 CPU cores/node;
+\item khoảng 515 GB RAM/node;
+\item 4 NVIDIA V100/node;
+\item một node drain;
+\item confirmation sử dụng các node còn khả dụng.
+\end{itemize}
+Workload GPU benchmark gồm:\par
+\begin{itemize}
+\item matrix multiplication;
+\item communication/all-reduce;
+\item problem size;
+\item steps;
+\item \texttt{matmuls\_per\_step};
+\item communication volume.
+\end{itemize}
+\end{frame}
+
+% Source slide 39
+\begin{frame}[t]{5.4. Thiết kế đánh giá}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\begin{block}{Nhóm đánh giá}
+\begin{itemize}
+\item intent interpretation trên 40 intent độc lập;
+\item profile confirmation trên unseen jobs và unseen resource vectors;
+\item prediction evaluation bằng MAPE và interval coverage;
+\item queue-aware utility trên 3 trạng thái cluster;
+\item audit khả năng truy vết quyết định.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.41\textwidth}
+\begin{block}{Chỉ số chính}
+\begin{itemize}
+\item field F1, schema validity;
+\item feasibility, regret, coverage;
+\item MAPE, interval coverage;
+\item turnaround, GPU-seconds;
+\item intent violation.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}

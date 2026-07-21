@@ -1,0 +1,104 @@
+\section{6. Kết quả và thảo luận}
+
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{6. Kết quả và thảo luận}}
+\vfill
+\end{frame}
+
+% Source slide 41
+\begin{frame}[t,shrink=20]{6.1. Kết quả mô hình hóa intent}
+\small
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Method & Field F1 & Schema validity & Unsupported & Premature commit \\
+\midrule
+Raw template & 0.492 & 0.0\% & 0.0\% & 0.0\% \\
+Schema only & 0.646 & 93.3\% & 93.6\% & 22.5\% \\
+System + schema & 0.765 & 92.5\% & 37.6\% & 1.7\% \\
+Few-shot + schema & 0.776 & 97.5\% & 38.9\% & 10.8\% \\
+Proposed & 0.894 & 98.3\% & 0.0\% & 0.0\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
+Bộ kiểm tra xác định giúp loại bỏ unsupported output và premature commit trong challenge set.\par
+\end{frame}
+
+% Source slide 42
+\begin{frame}[t,shrink=20]{6.2. Kết quả lựa chọn resource profile}
+\small
+Confirmation set gồm:\par
+\begin{itemize}
+\item 6 unseen jobs;
+\item 4 resource vectors;
+\item 72 measurements;
+\item median runtime CV: 0.99\%.
+\end{itemize}
+Kết quả:\par
+\begin{itemize}
+\item Pareto precision: 0.667;
+\item Pareto recall: 0.847;
+\item raw recommendation feasible rate: 83.3\%;
+\item exact oracle match: 44.4\%.
+\end{itemize}
+Exact match thấp nhưng nhiều profile vẫn có utility gần với oracle.\par
+\end{frame}
+
+% Source slide 43
+\begin{frame}[t,shrink=20]{6.3. Safety và automation coverage}
+\small
+\begin{center}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrr}
+\toprule
+Policy & Commit rate & Feasible khi commit & Mean regret \\
+\midrule
+Original & 100.0\% & 66.7\% & 0.508 \\
+Forced recommendation & 100.0\% & 83.3\% & 0.183 \\
+Probe-aware & 38.9\% & 100.0\% & 0.020 \\
+Oracle & 100.0\% & 100.0\% & 0.000 \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
+Probe-aware policy đạt feasibility cao nhất khi commit, nhưng làm giảm automation coverage.\par
+\[
+\text{An toàn hơn} \Longleftrightarrow \text{Tự động hóa ít hơn}
+\]
+\end{frame}
+
+% Source slide 44
+\begin{frame}[t,shrink=20]{6.4. Kết quả prediction và uncertainty}
+\small
+Screening predictor:\par
+\begin{itemize}
+\item factorized MAPE: 2.58\%;
+\item kNN MAPE: 3.77\%;
+\item monolithic MAPE: 19.54\%.
+\end{itemize}
+Confirmation predictor:\par
+\begin{itemize}
+\item factorized MAPE: 21.04\%;
+\item kNN MAPE: 19.13\%;
+\item interval coverage: 94.12\%.
+\end{itemize}
+Kết quả confirmation thấp hơn screening nhưng phản ánh tốt hơn độ khó khi gặp unseen jobs và unseen resource vectors.\par
+\end{frame}
+
+% Source slide 45
+\begin{frame}[t,shrink=20]{6.5. Kết quả queue-aware profile selection}
+\small
+Queue-aware profile selection so với original request:\par
+\begin{itemize}
+\item GPU fragmented: turnaround giảm trung bình 104.6 s;
+\item controlled 2-GPU pressure: turnaround giảm trung bình 104.8 s;
+\item mostly free: không tạo lợi ích ổn định.
+\end{itemize}
+GPU-seconds giảm trong mọi trạng thái cluster.\par
+Tuy nhiên, makespan không được cải thiện phổ quát.\par
+Điều này cho thấy queue-aware selection có lợi cho user turnaround trong điều kiện pressure, nhưng không đồng nghĩa với tối ưu toàn bộ batch workload.\par
+\end{frame}

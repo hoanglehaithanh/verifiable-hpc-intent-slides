@@ -38,13 +38,12 @@
 \usepackage[backend=biber,style=numeric,sorting=none,language=english]{biblatex}
 \addbibresource{thesiscite.bib}
 
-\renewcommand{\footnotesize}{\tiny}
 \newcommand{\mathbi}[1]{\boldsymbol{#1}}
 \newtheorem{proposition}{Proposition}
 
 %------------------------------------------------------------
 %This block of code defines the information to appear in the
-\institute[HCMUT] % (optional)
+\institute[2480861] % (optional)
 {
   Đại học Quốc gia Thành phố Hồ Chí Minh \\
   Trường Đại học Bách khoa \\
@@ -52,9 +51,10 @@
 }
 
 %Title page
-\title[Chuyên đề 1 tiến sĩ] %optional
-{\textbf{CHUYÊN ĐỀ 1 TIẾN SĨ \\ 
-Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệu quả Quá trình Định thời trên các Hệ thống Tính toán Hiệu năng cao}}
+\title[Chuyên đề 1 NCS] %optional
+{\textbf{BÁO CÁO KẾT QUẢ CHUYÊN ĐỀ 1 \\ 
+Mô hình hóa ý định người dùng trong hệ thống tính toán hiệu năng cao
+hướng tới điều phối tài nguyên có kiểm chứng}}
 
 \subtitle{}
 
@@ -63,10 +63,8 @@ Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệ
   \texorpdfstring{%
     \begin{tabular}{rl}
     Họ tên NCS: & Hoàng Lê Hải Thanh \\
-    Khóa: & 242 \\
     Mã số NCS: & 2480861 \\
     Ngành: & Khoa học Máy tính \\
-    Khoa: & Khoa học và Kỹ thuật Máy tính \\
     CBHD 1: & PGS.TS. Thoại Nam \\
     CBHD 2: & TS. Nguyễn Lê Duy Lai \\
     \end{tabular}
@@ -84,8 +82,8 @@ Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệ
 %The next block of commands puts the table of contents at the 
 %beginning of each section and highlights the current section:
 
-% Section markers are kept for navigation, without inserting extra agenda
-% slides into the deck.
+% Section markers are kept for navigation. A single overview slide is shown
+% after the title page; individual section agenda slides are not inserted.
 %------------------------------------------------------------
 \setbeamertemplate{title page}
 {
@@ -121,6 +119,12 @@ Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệ
 	\includegraphics[width=\paperwidth,height=\paperheight]{images/Background.pdf}
 }
 
+% Overview slide
+\begin{frame}[t]{Mục lục}
+\small
+\tableofcontents[hideallsubsections]
+\end{frame}
+
 % \begin{frame}
 % \vspace{1cm}
 % To anyone you love...\\
@@ -133,6 +137,7 @@ Nghiên cứu về các Giải pháp Học máy trong việc Cải thiện hiệ
 \input{chapters/02-co-so-ly-thuyet}
 \input{chapters/03-nghien-cuu-lien-quan}
 \input{chapters/04-giai-phap-de-xuat}
-\input{chapters/05-ket-qua-thuc-nghiem}
-\input{chapters/06-ket-luan}
+\input{chapters/05-hien-thuc-va-thuc-nghiem}
+\input{chapters/06-ket-qua-va-thao-luan}
+\input{chapters/07-ket-luan}
 \end{document}

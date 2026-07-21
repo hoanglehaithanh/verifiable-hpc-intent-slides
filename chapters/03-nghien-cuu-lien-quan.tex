@@ -1,84 +1,104 @@
-\section{Mục tiêu và mô hình intent}
+\section{3. Các nghiên cứu liên quan}
 
-\begin{frame}{Gap statement}
-\begin{block}{Phát biểu khoảng trống}
-Các phương pháp lập lịch cho moldable jobs thường giả định rằng cấu hình tài nguyên khả thi hoặc quan hệ giữa tài nguyên và thời gian thực thi đã biết trước. Giả định này không phù hợp với job mới, ít dữ liệu hoặc người dùng chưa có kinh nghiệm.
-\end{block}
-\begin{itemize}
-    \item \textbf{Gap chính:} methodological gap.
-    \item \textbf{Gap về giả định:} assumption gap.
-    \item \textbf{Gap hỗ trợ:} empirical gap.
-\end{itemize}
-\begin{alertblock}{Đích cần đạt}
-Chuyển request cố định và intent chưa đầy đủ thành tập profile khả thi, nhất quán với intent và có bằng chứng kiểm chứng.
-\end{alertblock}
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{3. Các nghiên cứu liên quan}}
+\vfill
 \end{frame}
 
-\begin{frame}{Mục tiêu nghiên cứu}
-\begin{block}{Mục tiêu tổng quát}
-Xây dựng và đánh giá một phương pháp mô hình hóa ý định người dùng nhằm hình thành các resource profiles khả thi, nhất quán và có thể kiểm chứng trước khi submit job vào hệ thống HPC.
-\end{block}
-\begin{enumerate}
-    \item Xây dựng mô hình biểu diễn intent cho HPC jobs.
-    \item Phân biệt hard constraints, soft preferences và authorized flexibility.
-    \item Hình thành candidate profiles từ intent và cluster capabilities.
-    \item Kiểm tra technical feasibility và intent consistency.
-    \item Xếp hạng profile phù hợp với mục tiêu người dùng.
-    \item Đánh giá tác động trên scheduler hiện hữu.
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Câu hỏi nghiên cứu}
-\begin{enumerate}
-    \item \textbf{RQ1 -- Intent representation:} Làm thế nào biểu diễn goal, constraint, preference, flexibility và thông tin chưa rõ?
-    \item \textbf{RQ2 -- Profile construction:} Làm thế nào chuyển intent, Slurm request, cluster constraints và limited evidence thành các profile khả thi?
-    \item \textbf{RQ3 -- Profile selection:} Làm thế nào chọn profile phù hợp khi performance evidence có uncertainty?
-    \item \textbf{RQ4 -- Scheduler-level utility:} Profile theo intent có cải thiện hiệu quả scheduler hiện hữu so với request ban đầu hay không?
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Phạm vi nghiên cứu}
+% Source slide 18
+\begin{frame}[t]{3.1. LLM và alternative resource profiles}
+\footnotesize
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{Trong phạm vi}
+\begin{column}{0.49\textwidth}
+\begin{block}{LLM trong scheduling}
 \begin{itemize}
-    \item batch jobs trên Slurm;
-    \item CPU, GPU, memory, partition và walltime;
-    \item intent đi kèm Slurm script;
-    \item chọn hoặc chỉnh profile trước submission;
-    \item allocation cố định khi job chạy;
-    \item scheduler hiện hữu không bị sửa đổi;
-    \item testbed thực và scheduler simulation.
+\item phân tích constraint từ mô tả tự nhiên;
+\item cân bằng nhiều mục tiêu;
+\item sinh structured output;
+\item cung cấp diễn giải bằng ngôn ngữ tự nhiên.
 \end{itemize}
 \end{block}
-\end{column}
-\begin{column}{0.47\textwidth}
-\begin{alertblock}{Ngoài phạm vi}
+\begin{alertblock}{Rủi ro của raw LLM output}
 \begin{itemize}
-    \item thay đổi allocation trong runtime;
-    \item phân tích toàn bộ source code;
-    \item tự sửa application để hỗ trợ scalability;
-    \item thiết kế scheduler mới;
-    \item fully autonomous submission không validation.
+\item sai constraint hoặc arithmetic;
+\item commit quá sớm;
+\item không tách hard constraint và preference.
+\end{itemize}
+\end{alertblock}
+\end{column}
+\begin{column}{0.49\textwidth}
+\begin{block}{Moldable và heterogeneous scheduling}
+\begin{itemize}
+\item waiting time;
+\item turnaround;
+\item utilization;
+\item khả năng khai thác tài nguyên không đồng nhất.
+\end{itemize}
+\end{block}
+\begin{alertblock}{Giả định còn hạn chế}
+\begin{itemize}
+\item alternative allocations đã có sẵn;
+\item performance model đã biết;
+\item application hỗ trợ scaling;
+\item user flexibility đã được biểu diễn rõ.
 \end{itemize}
 \end{alertblock}
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Intent Intermediate Representation}
-Với job $j$, intent được biểu diễn bởi:
-\[
-I_j=(G_j,C_j,F_j,P_j,U_j)
-\]
+% Source slide 20
+\begin{frame}[t,shrink=20]{3.3. Các nghiên cứu về prediction và uncertainty}
+\small
+Runtime, memory và GPU usage prediction là các thành phần quan trọng trong HPC resource management.\par
+Các hướng nghiên cứu hiện có thường tập trung vào:\par
 \begin{itemize}
-    \item $G_j$: goal;
-    \item $C_j$: hard constraints;
-    \item $F_j$: authorized flexibility;
-    \item $P_j$: soft preferences;
-    \item $U_j$: uncertainty và unresolved information.
+\item dự đoán runtime;
+\item dự đoán memory;
+\item dự đoán utilization;
+\item sử dụng telemetry hoặc historical logs;
+\item xây dựng prediction interval.
 \end{itemize}
-\begin{block}{Ví dụ}
-“Ưu tiên hoàn thành trước 18 giờ. Có thể dùng từ 2 đến 4 GPU. Nếu cả hai đều kịp deadline thì chọn cấu hình ít tốn quota hơn.”
+Tuy nhiên, prediction thường được xem là output hoặc feature đầu vào cho scheduler, chưa luôn được ánh xạ thành quyết định commit, keep original hoặc schedule probe.\par
+\end{frame}
+
+% Source slide 21
+\begin{frame}[t,shrink=20,fragile]{3.4. Các nghiên cứu về queue-aware decision}
+\small
+Queue state có ảnh hưởng trực tiếp đến turnaround time của user.\par
+Các scheduler truyền thống như backfilling đã khai thác queue state để cải thiện hiệu quả hệ thống.\par
+Tuy nhiên, queue-aware scheduling thường hoạt động ở tầng scheduler, trong khi bài toán của chuyên đề nằm ở tầng trước submission:\par
+\begin{block}{Minh họa}
+\begin{verbatim}
+User request
+      ↓
+Profile recommendation
+      ↓
+Slurm scheduler không thay đổi
+\end{verbatim}
 \end{block}
+Do đó, cần tách rõ profile recommendation trước submission và scheduling decision bên trong scheduler.\par
+\end{frame}
+
+% Source slide 22
+\begin{frame}[t,shrink=20]{3.5. Đánh giá chung}
+\small
+Các nghiên cứu hiện có đã giải quyết nhiều thành phần quan trọng:\par
+\begin{itemize}
+\item LLM có thể hỗ trợ hiểu constraint và sinh structured output.
+\item Moldable scheduling cho thấy lợi ích của alternative allocation.
+\item Prediction model có thể ước lượng runtime và resource usage.
+\item Queue-aware scheduling cho thấy trạng thái hệ thống ảnh hưởng lớn đến turnaround.
+\end{itemize}
+Tuy nhiên, còn thiếu một pipeline được đánh giá end-to-end để chuyển:\par
+\[
+\text{Slurm request + natural-language intent + queue state + limited evidence}
+\]
+thành:\par
+\[
+\text{resource-profile decision có uncertainty, evidence và khả năng abstain}
+\]
+trước khi submit job.\par
 \end{frame}

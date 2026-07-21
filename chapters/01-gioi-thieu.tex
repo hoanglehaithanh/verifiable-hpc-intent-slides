@@ -1,98 +1,138 @@
-\section{Bối cảnh và vấn đề}
+\section{1. Giới thiệu}
 
-\begin{frame}{Hệ thống HPC đang phục vụ workload ngày càng đa dạng}
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{1. Giới thiệu}}
+\vfill
+\end{frame}
+
+% Source slide 4
+\begin{frame}[t,fragile]{1.1. Bối cảnh vận hành trên các hệ thống HPC}
+\footnotesize
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.53\textwidth}
-\begin{itemize}
-    \item Mô phỏng song song CPU và MPI.
-    \item Huấn luyện, suy luận AI trên GPU.
-    \item Xử lý dữ liệu quy mô lớn.
-    \item Workflow nhiều giai đoạn.
-    \item Yêu cầu về deadline, chi phí, ưu tiên và chất lượng dịch vụ.
-\end{itemize}
-\end{column}
-\begin{column}{0.43\textwidth}
-\begin{block}{Thực tế giao tiếp hiện nay}
-Giao diện phổ biến giữa người dùng và scheduler vẫn là một batch script chứa yêu cầu tài nguyên cố định.
+\begin{column}{0.48\textwidth}
+\begin{block}{Request kỹ thuật hiện tại}
+\scriptsize
+\begin{verbatim}
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:4
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=64G
+#SBATCH --time=04:00:00
+\end{verbatim}
 \end{block}
-\begin{alertblock}{Hệ quả}
-Tài nguyên không đồng nhất, nhưng ngữ nghĩa của nhu cầu người dùng lại bị nén vào một cấu hình duy nhất.
+\begin{block}{Quy trình phổ biến}
+\centering
+Mục tiêu $\rightarrow$ Ước lượng tài nguyên\\
+$\downarrow$\\
+Slurm script $\rightarrow$ Queue/Scheduler $\rightarrow$ Thực thi
+\end{block}
+\begin{exampleblock}{Scheduler nhận được}
+\begin{itemize}
+\item partition, CPU/GPU, memory;
+\item walltime, account và QoS.
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\begin{column}{0.49\textwidth}
+\begin{alertblock}{Scheduler không trực tiếp nhận được}
+\begin{itemize}
+\item deadline thực tế;
+\item ưu tiên giữa thời gian chờ và quota;
+\item tài nguyên được phép thay đổi;
+\item mức rủi ro chấp nhận được;
+\item ý nghĩa phía sau request.
+\end{itemize}
 \end{alertblock}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Một resource request đang phải đại diện cho quá nhiều ý nghĩa}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.46\textwidth}
-\begin{block}{Ví dụ batch script}
-\texttt{\#SBATCH --partition=gpu}\\
-\texttt{\#SBATCH --gres=gpu:4}\\
-\texttt{\#SBATCH --cpus-per-task=16}\\
-\texttt{\#SBATCH --mem=64G}\\
-\texttt{\#SBATCH --time=02:00:00}
-\end{block}
-\end{column}
-\begin{column}{0.5\textwidth}
-Một cấu hình duy nhất thường đồng thời được hiểu là:
-\begin{enumerate}
-    \item nhu cầu kỹ thuật tối thiểu;
-    \item cấu hình mong muốn;
-    \item giới hạn scheduler được phép chọn;
-    \item lựa chọn tối ưu của job.
-\end{enumerate}
-\end{column}
-\end{columns}
-\vspace{0.3em}
-Scheduler không biết 4 GPU là bắt buộc, bảo thủ, hay chỉ là một lựa chọn để đạt mục tiêu.
-\end{frame}
-
-\begin{frame}{Một request hợp lệ chưa chắc là một request hiệu quả}
-\begin{block}{Intent thực tế}
-“Tôi muốn job hoàn thành trước 18 giờ. Có thể giảm từ 4 xuống 2 GPU nếu vẫn kịp deadline và tiết kiệm quota.”
-\end{block}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\textbf{Batch script chỉ biểu diễn}
-\[
-GPU=4,\qquad walltime=2\,h
-\]
-\end{column}
-\begin{column}{0.47\textwidth}
-\textbf{Intent còn chứa}
-\begin{itemize}
-    \item deadline;
-    \item preference về chi phí;
-    \item khoảng linh hoạt được cho phép;
-    \item điều kiện chấp nhận cấu hình thay thế.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Khi intent không được biểu diễn, decision space bị thu hẹp}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\textbf{Đối với người dùng}
-\begin{itemize}
-    \item tăng thời gian chờ;
-    \item tiêu thụ quota không cần thiết;
-    \item bỏ lỡ deadline;
-    \item phải thử--sai nhiều lần.
-\end{itemize}
-\end{column}
-\begin{column}{0.47\textwidth}
-\textbf{Đối với hệ thống}
-\begin{itemize}
-    \item giảm khả năng backfilling;
-    \item giữ tài nguyên lớn cho job over-request;
-    \item giảm mức độ đồng thời;
-    \item tăng makespan, giảm utilization và throughput.
-\end{itemize}
-\end{column}
-\end{columns}
 \vspace{0.5em}
-\begin{alertblock}{Vấn đề cốt lõi}
-Scheduler không nhất thiết ra quyết định sai; scheduler chỉ được cung cấp một \textbf{decision space quá hẹp}.
-\end{alertblock}
+\begin{center}
+\Large $\text{Resource request}\neq\text{User intent}$
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Source slide 6
+\begin{frame}[t,shrink=20]{1.2. Hạn chế của cách biểu diễn request hiện tại}
+\small
+Một request giống nhau có thể tương ứng với nhiều nhu cầu khác nhau:\par
+\begin{itemize}
+\item chạy nhanh nhất có thể;
+\item hoàn thành trước một deadline;
+\item tiết kiệm GPU-seconds;
+\item giảm quota sử dụng;
+\item tránh phải chờ lâu trong queue;
+\item giữ cấu hình an toàn vì chưa biết workload cần gì.
+\end{itemize}
+Do đó, việc chỉ dựa vào script ban đầu có thể làm mất thông tin quan trọng về mục tiêu thực tế của user.\par
+\end{frame}
+
+% Source slide 7
+\begin{frame}[t,shrink=20]{1.2. Hạn chế của cách biểu diễn request hiện tại}
+\small
+Các hạn chế trong quy trình submission hiện tại:\par
+\begin{itemize}
+\item Thiếu biểu diễn ngữ nghĩa về goal, constraint, preference và flexibility.
+\item Thiếu căn cứ để so sánh request gốc với các cấu hình tài nguyên thay thế.
+\item Thiếu cơ chế giúp user ra quyết định trước khi submit.
+\item Thiếu cách thể hiện mức bất định của các dự đoán liên quan tới runtime và tài nguyên.
+\end{itemize}
+$\rightarrow$ Cần một lớp hỗ trợ quyết định trước submission, không thay thế scheduler nhưng giúp tạo request tốt hơn.\par
+\end{frame}
+
+% Source slide 8
+\begin{frame}[t,shrink=20]{1.3. Mục đích, mục tiêu nghiên cứu}
+\small
+\textbf{Mục đích:}\par
+Góp phần nâng cao hiệu quả khai thác tài nguyên HPC và khả năng đáp ứng nhu cầu thực tế của user khi thực thi công việc tính toán.\par
+\textbf{Mục tiêu:}\par
+\begin{itemize}
+\item Xây dựng mô hình biểu diễn ý định người dùng trong bối cảnh HPC.
+\item Xác định các cấu hình tài nguyên phù hợp dựa trên intent, workload, quota và trạng thái hệ thống.
+\item Tạo quyết định có thể kiểm chứng thông qua prediction, uncertainty, evidence và cơ chế abstention.
+\end{itemize}
+\end{frame}
+
+% Source slide 9
+\begin{frame}[t,shrink=20]{1.4. Phạm vi nghiên cứu}
+\small
+Chuyên đề tập trung vào tầng trước khi submit job:\par
+\begin{itemize}
+\item single-turn intent;
+\item Slurm script;
+\item finite candidate profiles;
+\item workload manifest;
+\item runtime/resource prediction;
+\item queue-state-aware selection;
+\item uncertainty và schedule probe;
+\item đánh giá trên Slurm cluster thật.
+\end{itemize}
+Không tập trung vào:\par
+\begin{itemize}
+\item thay đổi scheduler;
+\item runtime malleability;
+\item tối ưu toàn cluster;
+\item multi-turn clarification;
+\item user study ở quy mô production.
+\end{itemize}
+\end{frame}
+
+% Source slide 10
+\begin{frame}[t,shrink=20]{1.5. Câu hỏi nghiên cứu và đóng góp}
+\small
+Các câu hỏi nghiên cứu chính:\par
+\begin{itemize}
+\item Mô hình intent có biểu diễn được nhu cầu người dùng một cách chính xác và an toàn không?
+\item Có thể xác định resource profile khả thi và phù hợp với intent không?
+\item Prediction, uncertainty và evidence có đủ để hỗ trợ quyết định có thể kiểm tra không?
+\item Queue-aware profile selection có tạo utility thực trong vận hành không?
+\end{itemize}
+Đóng góp của chuyên đề:\par
+\begin{itemize}
+\item mô hình hóa bài toán intent-aware pre-submission decision;
+\item structured HPC intent model;
+\item safe resource-profile recommendation pipeline;
+\item bằng chứng thực nghiệm trên Slurm cluster.
+\end{itemize}
 \end{frame}

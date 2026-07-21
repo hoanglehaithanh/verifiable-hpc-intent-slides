@@ -1,0 +1,63 @@
+\section{7. Kết luận và hướng nghiên cứu tiếp theo}
+
+% Source slide 47
+\begin{frame}[t,shrink=20]{7.1. Kết luận}
+\small
+Chuyên đề đã xây dựng và đánh giá một pipeline hỗ trợ quyết định trước submission cho HPC.\par
+Các kết quả chính:\par
+\begin{itemize}
+\item Intent modeling đạt Field F1 0.894 và loại bỏ unsupported/premature decision trong challenge set.
+\item Probe-aware recommendation đạt 100\% feasibility khi commit với mean regret 0.020.
+\item Prediction uncertainty được ánh xạ trực tiếp thành action.
+\item Queue-aware selection cải thiện turnaround dưới GPU pressure và giảm GPU-seconds.
+\item Giải pháp không thay scheduler và không claim tối ưu toàn cluster.
+\end{itemize}
+\end{frame}
+
+% Source slide 48
+\begin{frame}[t,shrink=20]{7.2. Giới hạn của chuyên đề}
+\small
+Các giới hạn hiện tại:\par
+\begin{itemize}
+\item intent set còn nhỏ và chỉ bằng tiếng Anh;
+\item chưa có multi-turn clarification;
+\item workload family còn hẹp;
+\item prediction error còn cao trên confirmation set;
+\item queue snapshot có thể stale;
+\item chưa đánh giá trên multi-node MPI hoặc I/O-heavy workload;
+\item chưa có user study với HPC users và admins.
+\end{itemize}
+Các giới hạn này cần được xem là boundary của claim nghiên cứu.\par
+\end{frame}
+
+% Source slide 49
+\begin{frame}[t,shrink=20]{7.3. Hướng nghiên cứu tiếp theo}
+\small
+Các hướng nghiên cứu tiếp theo:\par
+\begin{itemize}
+\item intent-guided active profiling;
+\item richer workload representation;
+\item dynamic queue-state prediction;
+\item multi-node và heterogeneous workloads;
+\item intent-aware scheduler interface;
+\item human-in-the-loop evaluation;
+\item cross-cluster benchmark cho intent-conditioned HPC resource decision.
+\end{itemize}
+\[
+\text{Better intent representation}
+\rightarrow
+\text{Safer profile decision}
+\rightarrow
+\text{Better scheduling opportunity}
+\]
+\end{frame}
+
+% Source slide 50
+\begin{frame}[t,shrink=20]{Xin cảm ơn}
+\small
+Hoàng Lê Hải Thanh\par
+thanhhoang@hcmut.edu.vn\par
+Bộ môn Hệ thống và Mạng Máy tính\par
+Khoa Khoa học và Kỹ thuật Máy tính\par
+Trường Đại học Bách Khoa, ĐHQG-HCM\par
+\end{frame}

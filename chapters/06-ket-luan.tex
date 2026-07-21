@@ -1,119 +1,144 @@
-\section{Đóng góp và kết luận}
+\section{Thảo luận và định hướng tiếp theo}
 
-\begin{frame}{Đóng góp dự kiến}
-\begin{enumerate}
-    \item \textbf{Intent abstraction:} mô hình phân biệt technical constraints, goals, preferences, authorized flexibility và uncertainty.
-    \item \textbf{Problem formulation:} mô hình hóa intent-to-resource-profile như constrained search dưới limited evidence và uncertainty.
-    \item \textbf{Phương pháp:} hình thành intent-consistent feasible profiles từ request rigid ban đầu.
-    \item \textbf{Benchmark:} liên kết Slurm request, intent, cluster constraints, evidence, feasible profiles và scheduler workload.
-    \item \textbf{Empirical evidence:} đánh giá tác động lên scheduler hiện hữu mà không thay đổi scheduling algorithm.
-\end{enumerate}
-\end{frame}
-
-\begin{frame}{Khác biệt so với các hướng hiện có}
+% Slide 44
+\begin{frame}[t,shrink=20]{Những gì chuyên đề đã chứng minh}
 \scriptsize
-\centering
-\renewcommand{\arraystretch}{1.5}
-\begin{tabular}{p{0.19\textwidth}p{0.24\textwidth}p{0.23\textwidth}p{0.22\textwidth}}
+\vspace{0.15em}
+\textbf{Đã chứng minh trong phạm vi đo}\par
+\begin{itemize}
+\item intent có thể được biểu diễn ở field level với safety validation;
+\item alternative profiles có thể được xây dựng từ authorized flexibility;
+\item abstention giúp đạt 100\% feasibility khi commit;
+\item uncertainty có thể chuyển thành operational action;
+\item queue-aware profile selection tạo utility dưới resource pressure.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Chưa thể khẳng định}\par
+\begin{itemize}
+\item semantic understanding hoàn hảo;
+\item universal automatic recommendation;
+\item universal makespan improvement;
+\item generalization cho mọi workload và cluster.
+\end{itemize}
+\end{frame}
+
+% Slide 45
+\begin{frame}[t,shrink=20]{Kết luận và hướng nghiên cứu tiếp theo}
+\scriptsize
+\vspace{0.15em}
+\textbf{Kết luận}\par
+\begin{quote}
+\emph{Một lớp intent-aware, evidence-backed và uncertainty-aware trước Slurm submission có thể cải thiện chất lượng resource request mà không thay đổi scheduler, với điều kiện hệ thống được phép từ chối tự động quyết định khi evidence chưa đủ.}
+\end{quote}
+\vspace{0.15em}
+\textbf{Hướng tiếp theo}\par
+\begin{itemize}
+\item intent-guided active profiling;
+\item richer workload representation;
+\item dynamic queue-state prediction;
+\item multi-node và heterogeneous workloads;
+\item intent-aware scheduler interface;
+\item human-in-the-loop evaluation.
+\end{itemize}
+\[
+\text{Better intent representation}
+\rightarrow
+\text{safer profile decision}
+\rightarrow
+\text{better scheduling opportunity}
+\]
+\end{frame}
+
+% Backup 1
+\begin{frame}[t,shrink=20]{Câu hỏi nghiên cứu và mapping với thí nghiệm}
+\scriptsize
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.16}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrr}
 \toprule
-\textbf{Hướng} & \textbf{Đầu vào} & \textbf{Đầu ra} & \textbf{Hạn chế liên quan}\\
+Research concern & Experiment & Main metric \\
 \midrule
-Traditional scheduling & Rigid request & Thời điểm và placement & Không thấy alternatives\\
-Moldable scheduling & Profile set đã biết & Profile và schedule & Giả định alternatives tồn tại\\
-Resource prediction & Historical logs & Runtime/resource estimate & Khó với job mới\\
-LLM-only assistant & Natural language & Resource suggestion & Không bảo đảm feasibility\\
-\textbf{Nghiên cứu đề xuất} & Intent + request + constraints + evidence & Verified feasible profile set & Xử lý bước còn thiếu trước scheduler\\
+Intent fidelity & Intent challenge & Field F1, safety violations \\
+Profile decision & Unseen profile confirmation & Feasibility, regret, coverage \\
+Verifiability & Prediction and audit & MAPE, interval coverage, traceability \\
+Operational utility & Counterbalanced queue experiment & Turnaround, GPU-seconds, makespan \\
 \bottomrule
-\end{tabular}
-\vspace{0.5em}
-\normalsize
-Điểm khác biệt không phải là dùng LLM, mà là tạo ra một \textbf{decision space có cấu trúc và có thể kiểm chứng}.
-\end{frame}
-
-\begin{frame}{Rủi ro và giới hạn}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\textbf{Intent không đủ thông tin}
-\begin{itemize}
-    \item Không tự suy diễn hard constraint chưa được cho phép.
-    \item Đánh dấu unresolved fields hoặc yêu cầu xác nhận.
-\end{itemize}
-\textbf{Performance estimate sai}
-\begin{itemize}
-    \item Dùng uncertainty margin và conservative feasibility checking.
-\end{itemize}
-\end{column}
-\begin{column}{0.47\textwidth}
-\textbf{Profile chạy được nhưng output sai}
-\begin{itemize}
-    \item Dùng workload-specific correctness test.
-\end{itemize}
-\textbf{Giá trị phụ thuộc workload}
-\begin{itemize}
-    \item Đánh giá theo tỷ lệ flexible jobs và workload class.
-\end{itemize}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Lộ trình thực hiện}
-\begin{enumerate}
-    \item \textbf{Mô hình và dữ liệu:} hoàn thiện intent schema, profile representation, workloads, profile space và ground truth.
-    \item \textbf{Phương pháp:} intent interpretation, candidate generation, feasibility checking, estimation, ranking và evidence logging.
-    \item \textbf{Đánh giá thành phần:} intent benchmark, profile-search evaluation, sparse-evidence experiment và ablation.
-    \item \textbf{Scheduler evaluation:} simulation, workload replay, real-cluster validation và robustness analysis.
-\end{enumerate}
-\begin{center}
-\[
-\text{model/data}\;\longrightarrow\;\text{method}\;\longrightarrow\;\text{component evaluation}\;\longrightarrow\;\text{scheduler evaluation}
-\]
+\end{tabular}%
+}
 \end{center}
 \end{frame}
 
-\begin{frame}{Kết luận: làm cho intent trở thành đầu vào có giá trị}
-Scheduler hiện tại không nhất thiết thiếu khả năng tối ưu; nó thường thiếu thông tin về \textbf{những lựa chọn tài nguyên mà người dùng thực sự chấp nhận}.
-\[
-\text{Rigid request}+\text{User intent}+\text{Cluster constraints}+\text{Limited evidence}
-\]
-\[
-\Downarrow
-\]
-\[
-\text{Intent-consistent feasible profiles}
-\]
-\[
-\Downarrow
-\]
-\[
-\text{Verified submission to an unchanged scheduler}
-\]
-\begin{alertblock}{Thông điệp chính}
-Bước còn thiếu giữa “hiểu người dùng” và “lập lịch” là tạo ra decision space vừa phù hợp intent, vừa khả thi và có thể kiểm chứng.
-\end{alertblock}
+% Backup 2
+\begin{frame}[t,shrink=20]{Acceptance criteria}
+\scriptsize
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.16}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrr}
+\toprule
+Hypothesis & Metric & Threshold \\
+\midrule
+Intent modeling & Field F1 & $\geq$ 0.85 \\
+Intent safety & Unsupported rate & $\leq$ 0.02 \\
+Profile decision & Committed feasibility & $\geq$ 0.95 \\
+Profile decision & Intent satisfaction & $\geq$ 0.95 \\
+Verifiability & Traceability & 100\% \\
+Operational utility & Intent violation increase & $\leq$ 0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
 \end{frame}
 
-\begin{frame}{Tóm tắt đóng góp}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{1. Mô hình hóa intent}
-Xác định goal, constraint, preference và flexibility.
-\end{block}
-\begin{block}{2. Tìm kiếm có ràng buộc}
-Tạo các lựa chọn tài nguyên hợp lệ từ request rigid.
-\end{block}
-\end{column}
-\begin{column}{0.47\textwidth}
-\begin{block}{3. Kiểm chứng quyết định}
-Bảo đảm profile phù hợp workload, cluster và intent.
-\end{block}
-\begin{block}{4. Đánh giá cấp scheduler}
-Chứng minh giá trị ở hiệu quả vận hành, không chỉ ở khả năng hiểu ngôn ngữ.
-\end{block}
-\end{column}
-\end{columns}
-\vfill
-\begin{center}
-\Large
-\textbf{Từ “hiểu người dùng” đến “cải thiện hệ thống”.}
-\end{center}
+% Backup 3
+\begin{frame}[t,shrink=20]{Threats to validity}
+\scriptsize
+\vspace{0.15em}
+\textbf{Construct}\par
+\begin{itemize}
+\item exact match quá nghiêm;
+\item usage cost chưa phải billing thật;
+\item turnaround khác makespan.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Internal}\par
+\begin{itemize}
+\item queue snapshot có thể stale;
+\item treatments chạy tuần tự;
+\item pressure chưa phản ánh đầy đủ production.
+\end{itemize}
+\vspace{0.15em}
+\textbf{External}\par
+\begin{itemize}
+\item single-node V100;
+\item một workload family;
+\item 40 English intents;
+\item 6 unseen jobs.
+\end{itemize}
+\vspace{0.15em}
+\textbf{Statistical}\par
+\begin{itemize}
+\item số campaign nhỏ;
+\item screening predictor có phạm vi hẹp.
+\end{itemize}
+\end{frame}
+
+% Backup 4
+\begin{frame}[t,shrink=20]{Artifact và reproducibility}
+\scriptsize
+\begin{itemize}
+\item challenge set và ground truth;
+\item raw LLM outputs;
+\item lock manifest;
+\item profile measurements;
+\item prediction intervals;
+\item queue snapshots;
+\item Slurm accounting;
+\item application checksum;
+\item decision audit;
+\item frozen prompt/schema/validator hashes.
+\end{itemize}
 \end{frame}

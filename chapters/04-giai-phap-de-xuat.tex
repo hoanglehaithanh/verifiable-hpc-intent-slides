@@ -1,84 +1,251 @@
-\section{Giải pháp đề xuất}
+\section{4. Mô hình và giải pháp đề xuất}
 
-\begin{frame}{Intent-conditioned constrained profile search}
-Mỗi profile có dạng:
-\[
-p=(partition,nodes,CPU,GPU,memory,walltime)
-\]
-Từ không gian cấu hình cluster $\mathcal{P}$, tìm:
-\[
-\mathcal{P}_j^{ICF}=\left\{p\in\mathcal{P}\mid C_{site}(p)\land C_{workload}(p)\land C_{intent}(p,I_j)\right\}
-\]
-\begin{itemize}
-    \item $C_{site}$: cluster và site-policy constraints;
-    \item $C_{workload}$: yêu cầu kỹ thuật của workload;
-    \item $C_{intent}$: intent và authorized flexibility.
-\end{itemize}
-Nếu có uncertainty, dùng $\hat{t}_j(p)\pm\epsilon_j(p)$ và chỉ chấp nhận profile an toàn dưới margin này.
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{4. Mô hình và giải pháp đề xuất}}
+\vfill
 \end{frame}
 
-\begin{frame}{Kiến trúc giải pháp: diễn giải bằng LLM, quyết định bằng ràng buộc}
-\begin{center}
-\begin{tabular}{c}
-User intent + Slurm script\\[0.15em]
-$\Downarrow$\\[-0.1em]
-Intent interpretation $\rightarrow$ Structured Intent Representation\\[0.15em]
-$\Downarrow$\\[-0.1em]
-Candidate profile generation\\[0.15em]
-$\Downarrow$\\[-0.1em]
-Technical feasibility $\rightarrow$ Intent consistency $\rightarrow$ Performance estimation\\[0.15em]
-$\Downarrow$\\[-0.1em]
-Profile ranking / selection\\[0.15em]
-$\Downarrow$\\[-0.1em]
-Verified Slurm request $\rightarrow$ Existing scheduler
-\end{tabular}
-\end{center}
-\begin{alertblock}{Nguyên tắc thiết kế}
-LLM diễn giải intent; các ràng buộc quyết định được kiểm tra bằng thành phần deterministic.
-\end{alertblock}
-\end{frame}
-
-\begin{frame}{LLM không phải gap và không phải toàn bộ giải pháp}
-LLM được sử dụng cho:
-\[
-\text{natural-language intent}\;\longrightarrow\;\text{structured constraints}
-\]
-Các thành phần phải deterministic:
+% Source slide 24
+\begin{frame}[t]{4.1. Tổng quan giải pháp}
+\small
+\begin{block}{Lớp hỗ trợ quyết định trước Slurm}
+\centering
+\textbf{Slurm script + \texttt{\#INTENT}}
+$\rightarrow$ Intent interpretation
+$\rightarrow$ Structured intent
+\end{block}
+\vspace{0.3em}
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.48\textwidth}
-\begin{itemize}
-    \item parse Slurm directives;
-    \item kiểm tra schema;
-    \item kiểm tra partition và policy;
-    \item sinh candidate profile space.
-\end{itemize}
+\begin{column}{0.31\textwidth}
+\begin{exampleblock}{1. Context}
+Quota, queue state và workload evidence
+\end{exampleblock}
 \end{column}
-\begin{column}{0.48\textwidth}
-\begin{itemize}
-    \item kiểm tra feasibility;
-    \item tính service units;
-    \item xác nhận constraint satisfaction;
-    \item log evidence cho audit.
-\end{itemize}
+\begin{column}{0.34\textwidth}
+\begin{exampleblock}{2. Evaluate}
+Candidate profiles $\rightarrow$ feasibility $\rightarrow$ prediction + uncertainty
+\end{exampleblock}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{exampleblock}{3. Select}
+Pareto/queue-aware selection và evidence
+\end{exampleblock}
 \end{column}
 \end{columns}
+\vspace{0.5em}
+\begin{alertblock}{Action cuối cùng}
+\centering
+\texttt{commit} \quad | \quad \texttt{keep\_original} \quad | \quad \texttt{schedule\_probe}
+\end{alertblock}
+\centering Modified Slurm script $\rightarrow$ Slurm scheduler không thay đổi.
+\end{frame}
+
+% Source slide 25
+\begin{frame}[t,shrink=20]{4.2. Mô hình đầu vào và đầu ra}
+\small
+Đầu vào của hệ thống:\par
 \[
-\text{LLM interpretation}+\text{constrained search}+\text{verification}
+X_j=(S_j,U_j,Q_u,H_t,E_j)
+\]
+Trong đó:\par
+\begin{itemize}
+\item \(S_j\): Slurm script ban đầu;
+\item \(U_j\): user intent;
+\item \(Q_u\): quota còn lại;
+\item \(H_t\): trạng thái cluster và queue;
+\item \(E_j\): profiling và operational evidence.
+\end{itemize}
+Đầu ra:\par
+\[
+D_j=(action,profile,predictions,uncertainty,evidence)
 \]
 \end{frame}
 
-\begin{frame}{“Có kiểm chứng” nghĩa là một quyết định có thể audit}
-Một profile được chấp nhận phải trả lời được:
-\begin{enumerate}
-    \item Có hợp lệ trên cluster không? Partition, CPU, GPU, memory và walltime có được hỗ trợ không?
-    \item Có khả thi đối với workload không? Job có chạy đúng và đạt yêu cầu đầu ra không?
-    \item Có nhất quán với intent không? Có vi phạm deadline, budget hoặc flexibility không?
-    \item Vì sao profile này được chọn? Evidence nào hỗ trợ quyết định?
-\end{enumerate}
-\begin{block}{Output}
+% Source slide 26
+\begin{frame}[t,shrink=20]{4.3. Mô hình ý định người dùng}
+\small
+Intent được biểu diễn bởi:\par
 \[
-(profile,\ evidence,\ constraints,\ uncertainty)
+I_j=(G_j,C_j,F_j,P_j,U_j^{unc})
 \]
-Không chỉ trả về một resource request, mà trả về một quyết định có thể truy vết.
+Trong đó:\par
+\begin{itemize}
+\item \(G_j\): mục tiêu chính;
+\item \(C_j\): ràng buộc cứng;
+\item \(F_j\): các thay đổi tài nguyên được user cho phép;
+\item \(P_j\): các ưu tiên mềm;
+\item \(U_j^{unc}\): thông tin thiếu, mơ hồ hoặc xung đột.
+\end{itemize}
+Mô hình này giúp tách rõ constraint, preference và flexibility.\par
+\end{frame}
+
+% Source slide 27
+\begin{frame}[t,shrink=20,fragile]{4.3. Mô hình ý định người dùng}
+\small
+Ví dụ intent:\par
+\begin{quote}
+\emph{Cần hoàn thành trước 18 giờ. Có thể dùng ít GPU hơn nếu vẫn kịp deadline. Ưu tiên tiết kiệm quota.}
+\end{quote}
+Structured intent:\par
+\begin{block}{Minh họa}
+\begin{verbatim}
+{
+  "goal": {
+    "primary": "meet_deadline",
+    "secondary": "reduce_quota"
+  },
+  "hard_constraints": {
+    "deadline": "18:00"
+  },
+  "authorized_flexibility": {
+    "gpu_reduction_allowed": true
+  },
+  "preferences": [
+    "lower_gpu_seconds"
+  ]
+}
+\end{verbatim}
 \end{block}
+\end{frame}
+
+% Source slide 28
+\begin{frame}[t,shrink=20]{4.4. LLM và bộ kiểm tra xác định}
+\small
+Mô hình ngôn ngữ được sử dụng để chuyển đổi yêu cầu tự nhiên thành intent có cấu trúc.\par
+Sau đó, bộ kiểm tra xác định được dùng để:\par
+\begin{itemize}
+\item kiểm tra schema;
+\item phát hiện field không hợp lệ;
+\item phát hiện conflict;
+\item loại bỏ flexibility chưa được user cho phép;
+\item phát hiện unsupported intent;
+\item ngăn commit quá sớm.
+\end{itemize}
+LLM không trực tiếp quyết định profile cuối cùng.\par
+\end{frame}
+
+% Source slide 29
+\begin{frame}[t,shrink=20,fragile]{4.5. Sinh candidate profiles}
+\small
+Candidate profiles được sinh từ các ràng buộc:\par
+\[
+\mathcal{P}_j^{cand}=
+\{p:
+C_{cluster}(p)
+\land C_{workload}(p)
+\land C_{intent}(p)
+\land C_{quota}(p)\}
+\]
+Các bước chính:\par
+\begin{block}{Minh họa}
+\begin{verbatim}
+All combinations
+→ cluster-valid
+→ workload-valid
+→ intent-valid
+→ quota-valid
+→ candidate profiles
+\end{verbatim}
+\end{block}
+Đây là constrained search, không phải free-form generation.\par
+\end{frame}
+
+% Source slide 30
+\begin{frame}[t]{4.6. Feasibility và prediction uncertainty}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.49\textwidth}
+\begin{block}{Feasibility kỹ thuật}
+Feasibility có thể không liên tục theo số GPU, CPU hoặc memory. Ở biên 4 GPU:\par
+\begin{itemize}
+\item một số workload chạy thành công;
+\item một số workload fail do tham số không tương thích trước compute.
+\end{itemize}
+\textbf{Cần kết hợp:}\par
+\begin{itemize}
+\item workload rule và preflight;
+\item measured evidence và prediction.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.49\textwidth}
+\begin{block}{Prediction và uncertainty}
+Mỗi candidate profile cần được đánh giá bởi:\par
+\begin{itemize}
+\item runtime prediction;
+\item memory feasibility;
+\item interval hoặc upper bound;
+\item relative uncertainty width.
+\end{itemize}
+\textbf{Mô hình khảo sát:}\par
+\begin{itemize}
+\item factorized và monolithic predictor;
+\item kNN và conformal upper bound.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+% Source slide 32
+\begin{frame}[t,shrink=20]{4.8. Static selection và queue-aware selection}
+\small
+Static selection xét:\par
+\begin{itemize}
+\item runtime;
+\item GPU-seconds;
+\item quota;
+\item prediction risk.
+\end{itemize}
+Queue-aware selection bổ sung:\par
+\begin{itemize}
+\item current occupancy;
+\item estimated waiting time;
+\item GPU fragmentation;
+\item pressure state.
+\end{itemize}
+\[
+Turnaround(p)=Waiting(p,H_t)+Runtime(p)
+\]
+Khi queue bị pressure, profile có runtime dài hơn nhưng wait time thấp hơn có thể tạo turnaround tốt hơn.\par
+\end{frame}
+
+% Source slide 33
+\begin{frame}[t,shrink=20]{4.9. Cơ chế quyết định cuối cùng}
+\small
+Hệ thống có ba action:\par
+\begin{itemize}
+\item \textbf{commit:} đề xuất profile mới vì đủ evidence và confidence;
+\item \textbf{keep original:} giữ request ban đầu vì không có profile tốt hơn đủ rõ;
+\item \textbf{schedule probe:} cần đo thêm vì uncertainty còn cao.
+\end{itemize}
+Điểm quan trọng của giải pháp:\par
+\begin{quote}
+\emph{Hệ thống không bắt buộc phải tự động thay đổi request trong mọi trường hợp.}
+\end{quote}
+\end{frame}
+
+% Source slide 34
+\begin{frame}[t,shrink=20]{4.10. Khả năng kiểm chứng của quyết định}
+\small
+Mỗi quyết định cần lưu lại:\par
+\begin{itemize}
+\item intent đã parse;
+\item ràng buộc được áp dụng;
+\item candidate profiles;
+\item profile bị loại và lý do;
+\item prediction và interval;
+\item queue snapshot;
+\item action cuối cùng;
+\item script sau khi rewrite;
+\item kết quả thực thi sau submit.
+\end{itemize}
+\[
+Intent
+\rightarrow Evidence
+\rightarrow Decision
+\rightarrow Outcome
+\]
 \end{frame}
