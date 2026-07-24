@@ -1,104 +1,120 @@
 \section{6. Kết quả và thảo luận}
 
-\begin{frame}[plain]
-\centering
-\vfill
-{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{6. Kết quả và thảo luận}}
-\vfill
-\end{frame}
-
-% Source slide 41
-\begin{frame}[t,shrink=20]{6.1. Kết quả mô hình hóa intent}
+\begin{frame}[t]{6.1. Kết quả parse intent}
 \small
-\begin{center}
-\resizebox{\textwidth}{!}{%
+\begin{block}{Bước pipeline được đánh giá: LLM intent parser}
+LLM trích xuất intent tốt ở mức field, nhưng exact match thấp cho thấy cần schema validation và verifier.
+\end{block}
+\centering
 \begin{tabular}{lrrrr}
 \toprule
-Method & Field F1 & Schema validity & Unsupported & Premature commit \\
+\textbf{Mô hình} & \textbf{Field F1} & \textbf{Hợp lệ} & \textbf{Exact} & \textbf{Độ trễ} \\
 \midrule
-Raw template & 0.492 & 0.0\% & 0.0\% & 0.0\% \\
-Schema only & 0.646 & 93.3\% & 93.6\% & 22.5\% \\
-System + schema & 0.765 & 92.5\% & 37.6\% & 1.7\% \\
-Few-shot + schema & 0.776 & 97.5\% & 38.9\% & 10.8\% \\
-Proposed & 0.894 & 98.3\% & 0.0\% & 0.0\% \\
+Gemini 3.1 Flash Lite & 0.938 & 100\% & 19\% & 3.77s \\
 \bottomrule
-\end{tabular}%
-}
-\end{center}
-Bộ kiểm tra xác định giúp loại bỏ unsupported output và premature commit trong challenge set.\par
+\end{tabular}
+\vspace{0.35cm}
+\begin{exampleblock}{Kết luận}
+LLM phù hợp cho bước biểu diễn intent, nhưng chưa đủ cơ sở để làm bộ ra quyết định cuối.
+\end{exampleblock}
 \end{frame}
 
-% Source slide 42
-\begin{frame}[t,shrink=20]{6.2. Kết quả lựa chọn resource profile}
+\begin{frame}[t]{6.2. Runtime và feasibility}
 \small
-Confirmation set gồm:\par
-\begin{itemize}
-\item 6 unseen jobs;
-\item 4 resource vectors;
-\item 72 measurements;
-\item median runtime CV: 0.99\%.
-\end{itemize}
-Kết quả:\par
-\begin{itemize}
-\item Pareto precision: 0.667;
-\item Pareto recall: 0.847;
-\item raw recommendation feasible rate: 83.3\%;
-\item exact oracle match: 44.4\%.
-\end{itemize}
-Exact match thấp nhưng nhiều profile vẫn có utility gần với oracle.\par
-\end{frame}
-
-% Source slide 43
-\begin{frame}[t,shrink=20]{6.3. Safety và automation coverage}
-\small
-\begin{center}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lrrr}
+\begin{block}{Bước pipeline được đánh giá: predictor và verifier}
+Mô hình dự đoán cung cấp evidence hữu ích, nhưng uncertainty vẫn cần được xử lý rõ trong quyết định.
+\end{block}
+\centering
+\begin{tabular}{lr}
 \toprule
-Policy & Commit rate & Feasible khi commit & Mean regret \\
+\textbf{Chỉ số} & \textbf{Kết quả} \\
 \midrule
-Original & 100.0\% & 66.7\% & 0.508 \\
-Forced recommendation & 100.0\% & 83.3\% & 0.183 \\
-Probe-aware & 38.9\% & 100.0\% & 0.020 \\
-Oracle & 100.0\% & 100.0\% & 0.000 \\
+Runtime MAE & 7.358s \\
+MAPE với runtime $\geq 1$s & 26.75\% \\
+Prediction interval coverage & 99.01\% \\
+Feasibility F1 & 0.940 \\
 \bottomrule
-\end{tabular}%
-}
-\end{center}
-Probe-aware policy đạt feasibility cao nhất khi commit, nhưng làm giảm automation coverage.\par
-\[
-\text{An toàn hơn} \Longleftrightarrow \text{Tự động hóa ít hơn}
-\]
+\end{tabular}
+\vspace{0.25cm}
+\begin{exampleblock}{Kết luận}
+Interval coverage cao hỗ trợ routing thận trọng như PROFILE hoặc ASK-BACK thay vì luôn ép recommendation.
+\end{exampleblock}
 \end{frame}
 
-% Source slide 44
-\begin{frame}[t,shrink=20]{6.4. Kết quả prediction và uncertainty}
+\begin{frame}[t,shrink=8]{6.3. Chất lượng quyết định}
 \small
-Screening predictor:\par
-\begin{itemize}
-\item factorized MAPE: 2.58\%;
-\item kNN MAPE: 3.77\%;
-\item monolithic MAPE: 19.54\%.
-\end{itemize}
-Confirmation predictor:\par
-\begin{itemize}
-\item factorized MAPE: 21.04\%;
-\item kNN MAPE: 19.13\%;
-\item interval coverage: 94.12\%.
-\end{itemize}
-Kết quả confirmation thấp hơn screening nhưng phản ánh tốt hơn độ khó khi gặp unseen jobs và unseen resource vectors.\par
+\begin{block}{Output được đánh giá: routing action và profile}
+Pipeline đầy đủ ưu tiên quyết định có căn cứ thay vì tối đa hóa số lần tự động recommend.
+\end{block}
+\centering
+\begin{tabular}{lr@{\qquad}lr}
+\toprule
+\textbf{Chỉ số} & \textbf{KQ} & \textbf{Chỉ số} & \textbf{KQ} \\
+\midrule
+Routing accuracy & 73\% & Macro F1 & 0.645 \\
+Commit rate & 29\% & Feasible khi commit & 93.10\% \\
+Reference-profile match & 48.28\% & Mean normalized regret & 0.090 \\
+\bottomrule
+\end{tabular}
+\vspace{0.3cm}
+\begin{exampleblock}{Kết luận}
+Exact match với oracle ở mức trung bình, nhưng regret thấp cho thấy profile được chọn thường gần phương án tốt nhất trong candidate set khả thi.
+\end{exampleblock}
 \end{frame}
 
-% Source slide 45
-\begin{frame}[t,shrink=20]{6.5. Kết quả queue-aware profile selection}
+\begin{frame}[t,shrink=8]{6.4. Vai trò của các thành phần}
 \small
-Queue-aware profile selection so với original request:\par
+\begin{block}{Câu hỏi ablation: vì sao cần các cổng kiểm tra?}
+Verifier, preference handling và uncertainty gate đều ảnh hưởng trực tiếp đến độ an toàn của quyết định.
+\end{block}
+\centering
+\begin{tabular}{p{0.34\linewidth}p{0.57\linewidth}}
+\toprule
+\textbf{Biến thể} & \textbf{Ảnh hưởng chính} \\
+\midrule
+Full pipeline & Accuracy 73\%, regret 0.090 \\
+Không kiểm tra kỹ thuật & Feasible commit giảm từ 93.10\% xuống 82.76\% \\
+Không xét preference & Regret tăng từ 0.090 lên 0.259 \\
+Không có uncertainty gate & Commit rate tăng lên 82\%, accuracy giảm còn 27\% \\
+LLM direct decision & Commit rate 98\%, accuracy chỉ 20\% \\
+\bottomrule
+\end{tabular}
+\vspace{0.2cm}
+\begin{exampleblock}{Kết luận}
+Thiết kế lai dùng LLM để diễn giải intent và dùng evidence cùng rule xác định để kiểm tra quyết định cuối.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}[t]{6.5. Kết quả queue-aware}
+\small
+\begin{block}{Bước pipeline được đánh giá: queue-aware ranking}
+Queue-aware recommendation có lợi rõ nhất khi tài nguyên GPU chịu áp lực.
+\end{block}
+\centering
+\begin{tabular}{lr}
+\toprule
+\textbf{Trạng thái hàng đợi} & \textbf{Mức giảm turnaround} \\
+\midrule
+Áp lực hai GPU & 80.73s \\
+GPU phân mảnh & 104.56s \\
+Phần lớn tài nguyên rảnh & 1.73s \\
+\bottomrule
+\end{tabular}
+\vspace{0.35cm}
+\begin{exampleblock}{Kết luận}
+Một profile nhỏ hơn có thể chạy lâu hơn nhưng vẫn hoàn tất sớm hơn nếu giảm được thời gian chờ trong queue.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}[t,shrink=5]{6.6. Tổng hợp kết quả và giới hạn}
+\small
 \begin{itemize}
-\item GPU fragmented: turnaround giảm trung bình 104.6 s;
-\item controlled 2-GPU pressure: turnaround giảm trung bình 104.8 s;
-\item mostly free: không tạo lợi ích ổn định.
+  \item Natural-language intent có thể được chuyển thành biểu diễn pre-submission có cấu trúc.
+  \item LLM hữu ích ở bước parse intent, nhưng cần schema validation và verifier.
+  \item Pipeline đầy đủ giảm các quyết định thiếu căn cứ so với LLM-only hoặc khi bỏ uncertainty gate.
+  \item Queue-aware recommendation có lợi rõ nhất trong trạng thái có áp lực tài nguyên.
 \end{itemize}
-GPU-seconds giảm trong mọi trạng thái cluster.\par
-Tuy nhiên, makespan không được cải thiện phổ quát.\par
-Điều này cho thấy queue-aware selection có lợi cho user turnaround trong điều kiện pressure, nhưng không đồng nghĩa với tối ưu toàn bộ batch workload.\par
+\begin{alertblock}{Giới hạn}
+Kết quả hiện tại được đánh giá trên một cụm Slurm thực nghiệm và tập workload có giới hạn. Kết quả cho thấy tính khả thi của hướng tiếp cận, chưa nhằm chứng minh tối ưu hóa scheduler ở quy mô production.
+\end{alertblock}
 \end{frame}

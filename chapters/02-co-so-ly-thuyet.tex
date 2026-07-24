@@ -1,109 +1,112 @@
 \section{2. Cơ sở lý thuyết}
 
-\begin{frame}[plain]
-\centering
-\vfill
-{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{2. Cơ sở lý thuyết}}
-\vfill
-\end{frame}
-
-% Source slide 12
-\begin{frame}[t,shrink=20]{2.1. Rigid, moldable và malleable jobs}
+\begin{frame}[t]{2.1. HPC job scheduling và Slurm request}
 \small
-Trong HPC scheduling, công việc có thể được phân loại theo khả năng thay đổi allocation:\par
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Người dùng khai báo}
 \begin{itemize}
-\item \textbf{Rigid job:} tài nguyên cố định từ lúc submit đến lúc kết thúc.
-\item \textbf{Moldable job:} tài nguyên được chọn trước khi bắt đầu chạy.
-\item \textbf{Malleable job:} tài nguyên có thể thay đổi trong lúc chạy.
+  \item partition, account;
+  \item nodes, CPU, GPU, memory;
+  \item walltime và dependency;
+  \item script thực thi.
 \end{itemize}
-Chuyên đề này không biến job thành malleable job.\par
-\[
-p_j^{original}
-\rightarrow
-\mathcal{P}_j^{candidate}
-\rightarrow
-p_j^{selected}
-\rightarrow
-\texttt{sbatch}(p_j^{selected})
-\]
-Job vẫn rigid sau khi được submit.\par
-\end{frame}
-
-% Source slide 13
-\begin{frame}[t,shrink=20]{2.2. Resource profile và candidate profile}
-\small
-Một resource profile được biểu diễn bởi:\par
-\[
-p=(nodes, CPU, GPU, memory, walltime, partition)
-\]
-Candidate profiles được tạo ra từ:\par
+\column{0.48\textwidth}
+\textbf{Scheduler quyết định}
 \begin{itemize}
-\item request ban đầu;
-\item khả năng thay đổi được user cho phép;
-\item cluster inventory;
-\item workload constraints;
-\item quota;
-\item policy;
-\item evidence hiện có.
+  \item admission và priority;
+  \item queueing và backfilling;
+  \item allocation;
+  \item thời điểm thực thi.
 \end{itemize}
-Original profile luôn được giữ lại để làm baseline và fallback.\par
-\end{frame}
-
-% Source slide 14
-\begin{frame}[t]{2.3. Định thời đa mục tiêu và utility theo intent}
-\small
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.45\textwidth}
-\begin{block}{Nhiều mục tiêu đồng thời}
-\begin{itemize}
-\item runtime;
-\item wait time;
-\item turnaround time;
-\item GPU-seconds;
-\item memory usage;
-\item quota;
-\item risk từ prediction uncertainty.
-\end{itemize}
-\end{block}
-\end{column}
-\begin{column}{0.52\textwidth}
-\begin{alertblock}{Không có một cấu hình tối ưu cho mọi mục tiêu}
-Pareto selection loại profile bị dominated; utility theo intent chọn profile phù hợp với người dùng.
-\end{alertblock}
-\[
-U(p)=\sum_k w_k\tilde{x}_k(p)
-\]
-\begin{exampleblock}{Ví dụ intent-conditioned utility}
-\begin{itemize}
-\item runtime-first ưu tiên runtime;
-\item cost-first ưu tiên GPU-seconds hoặc quota;
-\item deadline-first ưu tiên turnaround trước deadline;
-\item balanced cân bằng giữa hiệu suất và chi phí.
-\end{itemize}
-\end{exampleblock}
-\end{column}
 \end{columns}
+\begin{block}{Vị trí của nghiên cứu}
+Tinh chỉnh request trước submission; không can thiệp thuật toán scheduling nội bộ.
+\end{block}
 \end{frame}
 
-% Source slide 16
-\begin{frame}[t,shrink=20]{2.5. Uncertainty và selective automation}
+\begin{frame}[t]{2.2. Intent, constraints, preferences và flexibility}
 \small
-Point prediction không đủ để ra quyết định an toàn.\par
-Prediction interval:\par
+\begin{description}
+  \item[Goal] Kết quả người dùng muốn đạt.
+  \item[Hard constraints] Điều kiện bắt buộc; vi phạm là loại candidate.
+  \item[Soft preferences] Tiêu chí chỉ dùng để xếp hạng candidate đã khả thi.
+  \item[Authorized flexibility] Trường nào được đổi, miền giá trị và điều kiện đổi.
+\end{description}
 \[
-[\hat{t}_{low}(p),\hat{t}_{high}(p)]
+r\in\mathcal{R}^{\mathrm{feasible}}_j
+\quad\Longleftrightarrow\quad
+\text{mọi hard constraint tới hạn đều pass}
 \]
-Relative interval width:\par
+\begin{alertblock}{Nguyên tắc}
+Không dùng preference để bù cho một hard constraint bị vi phạm.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{2.3. Moldable resource profiles và candidate space}
+\small
 \[
-W(p)=
-\frac{\hat{t}_{high}(p)-\hat{t}_{low}(p)}
-{\hat{t}_{center}(p)}
+\mathcal{R}_j=
+\mathcal{C}_{\mathrm{cluster}}
+\cap
+\mathcal{F}_{\mathrm{authorized}}
+\cap
+\mathcal{C}_{\mathrm{application}}
 \]
-Khi uncertainty cao:\par
+\begin{itemize}
+  \item $\mathcal{C}_{\mathrm{cluster}}$: tài nguyên và cấu hình thực sự tồn tại.
+  \item $\mathcal{F}_{\mathrm{authorized}}$: chỉ các thay đổi người dùng cho phép.
+  \item $\mathcal{C}_{\mathrm{application}}$: profile mà ứng dụng có thể chạy đúng.
+\end{itemize}
+\begin{block}{Moldable, không phải malleable trong phạm vi này}
+Chọn một resource profile trước khi nộp; không thay đổi allocation khi job đang chạy.
+\end{block}
+\end{frame}
+
+\begin{frame}[t]{2.4. Feasibility, evidence và uncertainty}
+\small
 \[
-W(p)>\tau
-\Rightarrow
-\texttt{schedule\_probe}
+F(r)=F_{\mathrm{app}}(r)\land F_{\mathrm{system}}(r)\land
+F_{\mathrm{policy}}(r)\land F_{\mathrm{quota}}(r)\land F_{\mathrm{intent}}(r)
 \]
-Không tự động quyết định khi evidence chưa đủ cũng là một yêu cầu an toàn.\par
+\[
+\mathbb{L}_3=\{\mathrm{pass},\mathrm{fail},\mathrm{unknown}\}
+\]
+\begin{itemize}
+  \item \textbf{pass}: evidence đủ và điều kiện được thỏa.
+  \item \textbf{fail}: evidence cho thấy điều kiện bị vi phạm.
+  \item \textbf{unknown}: thiếu, cũ, xung đột hoặc độ tin cậy chưa đủ.
+\end{itemize}
+\begin{alertblock}{Quy tắc an toàn}
+Unknown trên ràng buộc tới hạn không được chuyển thành khuyến nghị tự tin.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{2.5. Kiểm tra deadline dưới bất định}
+\small
+\textbf{Điều kiện theo upper bound:}
+\[
+t+\widehat{T}_{\mathrm{wait}}^{U}(r)+\widehat{T}_{\mathrm{run}}^{U}(r)\le D_j
+\]
+\textbf{Hoặc điều kiện xác suất:}
+\[
+\Pr\!\left[T_{\mathrm{wait}}(r)+T_{\mathrm{run}}(r)\le D_j-t\right]\ge\alpha_j
+\]
+\begin{block}{Diễn giải đúng}
+Dự đoán hỗ trợ quyết định với interval, confidence hoặc safety margin; không phải lời bảo đảm hoàn thành.
+\end{block}
+\end{frame}
+
+\begin{frame}[t]{2.6. Pareto, lexicographic selection và trace}
+\small
+\begin{center}
+\textbf{Hard constraints} $\rightarrow$ \textbf{Evidence gate} $\rightarrow$
+\textbf{Pareto} $\rightarrow$ \textbf{Lexicographic} $\rightarrow$ \textbf{Action}
+\end{center}
+\begin{itemize}
+  \item Pareto filtering loại candidate bị trội trên các tiêu chí liên quan.
+  \item Lexicographic selection tuân theo thứ tự preference do người dùng khai báo.
+  \item Weighted utility chỉ là baseline hoặc evaluation metric, không phải luật chọn chính.
+  \item Decision trace lưu input, evidence, validation, dominance/ranking và output.
+\end{itemize}
 \end{frame}

@@ -1,59 +1,56 @@
 \section{7. Kết luận và hướng nghiên cứu tiếp theo}
 
-% Source slide 47
-\begin{frame}[t,shrink=20]{7.1. Kết luận}
+\begin{frame}[t]{7.1. Kết luận}
 \small
-Chuyên đề đã xây dựng và đánh giá một pipeline hỗ trợ quyết định trước submission cho HPC.\par
-Các kết quả chính:\par
 \begin{itemize}
-\item Intent modeling đạt Field F1 0.894 và loại bỏ unsupported/premature decision trong challenge set.
-\item Probe-aware recommendation đạt 100\% feasibility khi commit với mean regret 0.020.
-\item Prediction uncertainty được ánh xạ trực tiếp thành action.
-\item Queue-aware selection cải thiện turnaround dưới GPU pressure và giảm GPU-seconds.
-\item Giải pháp không thay scheduler và không claim tối ưu toàn cluster.
+  \item Nghiên cứu xác lập lớp structured intent modeling cho HPC job submission.
+  \item Khung đề xuất tách probabilistic intent interpretation khỏi deterministic feasibility validation.
+  \item Thiết kế hỗ trợ evidence-backed recommendation, uncertainty-aware abstention và auditable decision traces.
+  \item Hệ thống hỗ trợ pre-submission refinement; scheduler vẫn chịu trách nhiệm queue management, priority, backfilling, allocation và execution.
 \end{itemize}
 \end{frame}
 
-% Source slide 48
-\begin{frame}[t,shrink=20]{7.2. Giới hạn của chuyên đề}
+\begin{frame}[t]{7.2. Giới hạn hiện tại}
 \small
-Các giới hạn hiện tại:\par
 \begin{itemize}
-\item intent set còn nhỏ và chỉ bằng tiếng Anh;
-\item chưa có multi-turn clarification;
-\item workload family còn hẹp;
-\item prediction error còn cao trên confirmation set;
-\item queue snapshot có thể stale;
-\item chưa đánh giá trên multi-node MPI hoặc I/O-heavy workload;
-\item chưa có user study với HPC users và admins.
+  \item Chưa có prototype hoàn chỉnh và đánh giá thực nghiệm.
+  \item Chưa chứng minh portability trên nhiều scheduler/site.
+  \item Chất lượng recommendation phụ thuộc evidence, predictor và policy snapshot.
+  \item Human-in-the-loop vẫn cần thiết cho ambiguity, critical unknown và action có tác động.
 \end{itemize}
-Các giới hạn này cần được xem là boundary của claim nghiên cứu.\par
+\begin{block}{Mức độ claim}
+Đóng góp hiện tại thuộc về mô hình hóa và thiết kế hệ thống, chưa phải bằng chứng cải thiện vận hành.
+\end{block}
 \end{frame}
 
-% Source slide 49
-\begin{frame}[t,shrink=20]{7.3. Hướng nghiên cứu tiếp theo}
+\begin{frame}[t]{7.3. Hướng nghiên cứu tiếp theo}
 \small
-Các hướng nghiên cứu tiếp theo:\par
-\begin{itemize}
-\item intent-guided active profiling;
-\item richer workload representation;
-\item dynamic queue-state prediction;
-\item multi-node và heterogeneous workloads;
-\item intent-aware scheduler interface;
-\item human-in-the-loop evaluation;
-\item cross-cluster benchmark cho intent-conditioned HPC resource decision.
-\end{itemize}
-\[
-\text{Better intent representation}
-\rightarrow
-\text{Safer profile decision}
-\rightarrow
-\text{Better scheduling opportunity}
-\]
+\begin{enumerate}
+  \item Hiện thực intent parser, schema validator và deterministic candidate enumerator.
+  \item Tích hợp cluster/policy/quota evidence với provenance và TTL.
+  \item Xây dựng benchmark cho intent completeness, constraint violation và calibration.
+  \item Đánh giá recommendation quality, regret, abstention, overhead và robustness.
+  \item Nghiên cứu human-in-the-loop approval và khả năng chuyển giao có kiểm soát giữa các site.
+\end{enumerate}
 \end{frame}
 
-% Source slide 50
-\begin{frame}[t,shrink=20]{Xin cảm ơn}
+\begin{frame}[t]{Tài liệu tham khảo chính}
+\scriptsize
+\setlength{\itemsep}{0.35em}
+\begin{enumerate}
+  \item P. Valero-Lara et al., ``ChatHPC: Building the Foundations for a Productive and Trustworthy AI-Assisted HPC Ecosystem,'' \textit{SC '25}, 2025.
+
+  \item Z. Zhang et al., ``Natural-Language Policies to Executable Decisions: An Interpretable Large Language Model Framework,'' \textit{ACL Industry Track}, 2026.
+
+  \item T. H. L. Hai et al., ``HDEM: A Hierarchical Dynamic Ensemble Model for Accurate Runtime Prediction on High Performance Computing Systems,'' \textit{FDSE}, 2026.
+
+  \item N. Brown et al., ``Predicting Batch Queue Job Wait Times for Informed Scheduling of Urgent HPC Workloads,'' \textit{arXiv:2204.13543}, 2022.
+
+  \item R. L. F. Cunha et al., ``Job Placement Advisor Based on Turnaround Predictions for HPC Hybrid Clouds,'' \textit{Future Generation Computer Systems}, vol. 67, pp. 35--46, 2017.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[t]{Xin cảm ơn}
 \small
 Hoàng Lê Hải Thanh\par
 thanhhoang@hcmut.edu.vn\par

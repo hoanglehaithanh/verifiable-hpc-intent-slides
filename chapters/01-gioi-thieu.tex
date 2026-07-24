@@ -1,138 +1,91 @@
 \section{1. Giới thiệu}
 
-\begin{frame}[plain]
-\centering
-\vfill
-{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{1. Giới thiệu}}
-\vfill
+\begin{frame}[t]{1.1. Quy trình nộp công việc HPC}
+\small
+\begin{center}
+\begin{tikzpicture}[node distance=0.55cm, every node/.style={font=\small}]
+\tikzstyle{stage}=[draw=BKTemplate, rounded corners, fill=blue!7, minimum height=0.9cm, text width=2.25cm, align=center]
+\node[stage] (intent) {Ý định và nhu cầu\\của người dùng};
+\node[stage, right=of intent] (script) {Slurm script\\resource request cố định};
+\node[stage, right=of script] (sched) {Scheduler\\queue, priority, allocation};
+\node[stage, right=of sched] (run) {Phân bổ và\\thực thi};
+\draw[->,thick] (intent)--(script);
+\draw[->,thick] (script)--(sched);
+\draw[->,thick] (sched)--(run);
+\end{tikzpicture}
+\end{center}
+\begin{alertblock}{Vấn đề cốt lõi}
+Scheduler nhận request đã cố định, nhưng không trực tiếp nhận mục tiêu, ràng buộc, ưu tiên, mức bất định hay phạm vi linh hoạt mà người dùng chấp thuận.
+\end{alertblock}
 \end{frame}
 
-% Source slide 4
-\begin{frame}[t,fragile]{1.1. Bối cảnh vận hành trên các hệ thống HPC}
-\footnotesize
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.48\textwidth}
-\begin{block}{Request kỹ thuật hiện tại}
-\scriptsize
-\begin{verbatim}
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:4
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
-#SBATCH --time=04:00:00
-\end{verbatim}
-\end{block}
-\begin{block}{Quy trình phổ biến}
-\centering
-Mục tiêu $\rightarrow$ Ước lượng tài nguyên\\
-$\downarrow$\\
-Slurm script $\rightarrow$ Queue/Scheduler $\rightarrow$ Thực thi
-\end{block}
-\begin{exampleblock}{Scheduler nhận được}
+\begin{frame}[t]{1.2. Mất mát ngữ nghĩa khi tạo resource request}
+\small
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{block}{Ý định ban đầu}
 \begin{itemize}
-\item partition, CPU/GPU, memory;
-\item walltime, account và QoS.
+  \item mục tiêu: hoàn thành trước deadline;
+  \item ràng buộc: GPU, bộ nhớ, quota;
+  \item ưu tiên: chi phí trước tốc độ;
+  \item linh hoạt: được đổi số node, không đổi GPU;
+  \item bất định: runtime chưa được đo.
 \end{itemize}
-\end{exampleblock}
-\end{column}
-\begin{column}{0.49\textwidth}
-\begin{alertblock}{Scheduler không trực tiếp nhận được}
-\begin{itemize}
-\item deadline thực tế;
-\item ưu tiên giữa thời gian chờ và quota;
-\item tài nguyên được phép thay đổi;
-\item mức rủi ro chấp nhận được;
-\item ý nghĩa phía sau request.
-\end{itemize}
+\end{block}
+\column{0.48\textwidth}
+\begin{block}{Thông tin scheduler thấy}
+\texttt{--nodes=2}\quad \texttt{--gpus=4}\\
+\texttt{--mem=128G}\quad \texttt{--time=02:00:00}
+\end{block}
+\begin{alertblock}{Semantic loss}
+Quá trình dịch thủ công nén nhiều ý nghĩa thành một cấu hình duy nhất và che khuất các phương án được phép.
 \end{alertblock}
-\vspace{0.5em}
-\begin{center}
-\Large $\text{Resource request}\neq\text{User intent}$
-\end{center}
-\end{column}
 \end{columns}
 \end{frame}
 
-% Source slide 6
-\begin{frame}[t,shrink=20]{1.2. Hạn chế của cách biểu diễn request hiện tại}
+\begin{frame}[t]{1.3. Giới hạn của request truyền thống}
 \small
-Một request giống nhau có thể tương ứng với nhiều nhu cầu khác nhau:\par
 \begin{itemize}
-\item chạy nhanh nhất có thể;
-\item hoàn thành trước một deadline;
-\item tiết kiệm GPU-seconds;
-\item giảm quota sử dụng;
-\item tránh phải chờ lâu trong queue;
-\item giữ cấu hình an toàn vì chưa biết workload cần gì.
+  \item Request cho biết \emph{đã yêu cầu gì}, không cho biết \emph{vì sao}.
+  \item Hard constraints và soft preferences thường không được phân biệt.
+  \item Scheduler không biết tham số nào được phép thay đổi.
+  \item Một dự đoán runtime không phải là bảo đảm deadline.
+  \item Thiếu evidence và provenance khiến khuyến nghị khó kiểm tra lại.
 \end{itemize}
-Do đó, việc chỉ dựa vào script ban đầu có thể làm mất thông tin quan trọng về mục tiêu thực tế của user.\par
+\begin{exampleblock}{Ranh giới trách nhiệm}
+Lớp đề xuất hoạt động \textbf{trước khi nộp job}. Scheduler vẫn quản lý hàng đợi, priority, backfilling, allocation và execution.
+\end{exampleblock}
 \end{frame}
 
-% Source slide 7
-\begin{frame}[t,shrink=20]{1.2. Hạn chế của cách biểu diễn request hiện tại}
+\begin{frame}[t]{1.4. Bài toán nghiên cứu}
 \small
-Các hạn chế trong quy trình submission hiện tại:\par
-\begin{itemize}
-\item Thiếu biểu diễn ngữ nghĩa về goal, constraint, preference và flexibility.
-\item Thiếu căn cứ để so sánh request gốc với các cấu hình tài nguyên thay thế.
-\item Thiếu cơ chế giúp user ra quyết định trước khi submit.
-\item Thiếu cách thể hiện mức bất định của các dự đoán liên quan tới runtime và tài nguyên.
-\end{itemize}
-$\rightarrow$ Cần một lớp hỗ trợ quyết định trước submission, không thay thế scheduler nhưng giúp tạo request tốt hơn.\par
+\begin{block}{Câu hỏi trung tâm}
+Làm thế nào chuyển ý định HPC không đầy đủ thành các resource profile được người dùng cho phép, khả thi theo bằng chứng hiện có, và có thể kiểm tra trước khi nộp job?
+\end{block}
+\begin{block}{Luận điểm trung tâm}
+Nghiên cứu đề xuất một \textbf{khung khuyến nghị resource profile nhận biết ý định ở giai đoạn pre-submission}, dựa trên mô hình ý định có cấu trúc, kiểm tra khả thi có bằng chứng, xử lý bất định và decision trace có thể audit.
+\end{block}
 \end{frame}
 
-% Source slide 8
-\begin{frame}[t,shrink=20]{1.3. Mục đích, mục tiêu nghiên cứu}
+\begin{frame}[t,shrink=8]{1.5. Câu hỏi nghiên cứu và phạm vi}
 \small
-\textbf{Mục đích:}\par
-Góp phần nâng cao hiệu quả khai thác tài nguyên HPC và khả năng đáp ứng nhu cầu thực tế của user khi thực thi công việc tính toán.\par
-\textbf{Mục tiêu:}\par
-\begin{itemize}
-\item Xây dựng mô hình biểu diễn ý định người dùng trong bối cảnh HPC.
-\item Xác định các cấu hình tài nguyên phù hợp dựa trên intent, workload, quota và trạng thái hệ thống.
-\item Tạo quyết định có thể kiểm chứng thông qua prediction, uncertainty, evidence và cơ chế abstention.
-\end{itemize}
+\begin{enumerate}
+  \item[\textbf{RQ1.}] Biểu diễn ý định công việc HPC bằng ngôn ngữ tự nhiên thành mô hình ý định có cấu trúc và có thể kiểm tra như thế nào?
+  \item[\textbf{RQ2.}] Sinh các phương án tài nguyên được ủy quyền mà không vi phạm ràng buộc người dùng, chính sách site hay năng lực cluster như thế nào?
+  \item[\textbf{RQ3.}] Dùng bằng chứng và bất định để xác định khuyến nghị an toàn, không an toàn, hay cần hỏi thêm như thế nào?
+  \item[\textbf{RQ4.}] Tạo decision trace có thể audit trước khi nộp job như thế nào?
+\end{enumerate}
+\vspace{0.1cm}
+\textbf{Ngoài phạm vi:} thay thế scheduler, tối ưu toàn hệ thống, tự động nộp job, và khẳng định hiệu quả thực nghiệm khi chưa có kết quả.
 \end{frame}
 
-% Source slide 9
-\begin{frame}[t,shrink=20]{1.4. Phạm vi nghiên cứu}
+\begin{frame}[t]{1.6. Đóng góp dự kiến}
 \small
-Chuyên đề tập trung vào tầng trước khi submit job:\par
-\begin{itemize}
-\item single-turn intent;
-\item Slurm script;
-\item finite candidate profiles;
-\item workload manifest;
-\item runtime/resource prediction;
-\item queue-state-aware selection;
-\item uncertainty và schedule probe;
-\item đánh giá trên Slurm cluster thật.
-\end{itemize}
-Không tập trung vào:\par
-\begin{itemize}
-\item thay đổi scheduler;
-\item runtime malleability;
-\item tối ưu toàn cluster;
-\item multi-turn clarification;
-\item user study ở quy mô production.
-\end{itemize}
-\end{frame}
-
-% Source slide 10
-\begin{frame}[t,shrink=20]{1.5. Câu hỏi nghiên cứu và đóng góp}
-\small
-Các câu hỏi nghiên cứu chính:\par
-\begin{itemize}
-\item Mô hình intent có biểu diễn được nhu cầu người dùng một cách chính xác và an toàn không?
-\item Có thể xác định resource profile khả thi và phù hợp với intent không?
-\item Prediction, uncertainty và evidence có đủ để hỗ trợ quyết định có thể kiểm tra không?
-\item Queue-aware profile selection có tạo utility thực trong vận hành không?
-\end{itemize}
-Đóng góp của chuyên đề:\par
-\begin{itemize}
-\item mô hình hóa bài toán intent-aware pre-submission decision;
-\item structured HPC intent model;
-\item safe resource-profile recommendation pipeline;
-\item bằng chứng thực nghiệm trên Slurm cluster.
-\end{itemize}
+\begin{enumerate}
+  \item Một structured intent schema phân tách mục tiêu, hard constraints, preferences và authorized flexibility.
+  \item Không gian candidate hữu hạn, được chặn bởi cluster, quyền thay đổi và năng lực ứng dụng.
+  \item Kiểm tra khả thi nhiều lớp với logic ba giá trị và evidence gate.
+  \item Pareto filtering và lexicographic selection thay cho weighted sum làm quy tắc chính.
+  \item Evidence-backed decision trace cho recommendation, ask-back, abstention hoặc approved action.
+\end{enumerate}
 \end{frame}

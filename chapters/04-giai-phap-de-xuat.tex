@@ -1,251 +1,237 @@
 \section{4. Mô hình và giải pháp đề xuất}
 
-\begin{frame}[plain]
-\centering
-\vfill
-{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{4. Mô hình và giải pháp đề xuất}}
-\vfill
-\end{frame}
-
-% Source slide 24
-\begin{frame}[t]{4.1. Tổng quan giải pháp}
+\begin{frame}[t]{4.1. Từ request ban đầu đến khuyến nghị có kiểm tra}
 \small
-\begin{block}{Lớp hỗ trợ quyết định trước Slurm}
-\centering
-\textbf{Slurm script + \texttt{\#INTENT}}
-$\rightarrow$ Intent interpretation
-$\rightarrow$ Structured intent
+\begin{center}
+\begin{tikzpicture}[node distance=0.28cm, every node/.style={font=\scriptsize}]
+\tikzstyle{pipelinebox}=[draw=BKTemplate, rounded corners, fill=blue!7,
+  minimum height=0.72cm, text width=1.72cm, align=center]
+\node[pipelinebox] (input) {Slurm script\\+ intent};
+\node[pipelinebox, right=of input] (parse) {Parse intent\\thành IR};
+\node[pipelinebox, right=of parse] (candidate) {Sinh candidate\\có giới hạn};
+\node[pipelinebox, right=of candidate] (verify) {Kiểm tra\\feasibility};
+\node[pipelinebox, right=of verify] (route) {Recommend /\\ask-back / abstain};
+\draw[->,thick] (input)--(parse);
+\draw[->,thick] (parse)--(candidate);
+\draw[->,thick] (candidate)--(verify);
+\draw[->,thick] (verify)--(route);
+\end{tikzpicture}
+\end{center}
+\vspace{0.3cm}
+\begin{block}{Thông điệp chính}
+Pipeline biến một request cố định thành tập lựa chọn có kiểm tra, rồi khuyến nghị hoặc hỏi lại dựa trên evidence.
 \end{block}
-\vspace{0.3em}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.31\textwidth}
-\begin{exampleblock}{1. Context}
-Quota, queue state và workload evidence
-\end{exampleblock}
-\end{column}
-\begin{column}{0.34\textwidth}
-\begin{exampleblock}{2. Evaluate}
-Candidate profiles $\rightarrow$ feasibility $\rightarrow$ prediction + uncertainty
-\end{exampleblock}
-\end{column}
-\begin{column}{0.31\textwidth}
-\begin{exampleblock}{3. Select}
-Pareto/queue-aware selection và evidence
-\end{exampleblock}
-\end{column}
-\end{columns}
-\vspace{0.5em}
-\begin{alertblock}{Action cuối cùng}
-\centering
-\texttt{commit} \quad | \quad \texttt{keep\_original} \quad | \quad \texttt{schedule\_probe}
+\begin{alertblock}{Ranh giới}
+Đây là lớp hỗ trợ trước khi submit. Slurm vẫn quản lý queue, priority, allocation và execution.
 \end{alertblock}
-\centering Modified Slurm script $\rightarrow$ Slurm scheduler không thay đổi.
 \end{frame}
 
-% Source slide 25
-\begin{frame}[t,shrink=20]{4.2. Mô hình đầu vào và đầu ra}
+\begin{frame}[t]{4.2. Hệ thống nhận gì và trả về gì?}
 \small
-Đầu vào của hệ thống:\par
-\[
-X_j=(S_j,U_j,Q_u,H_t,E_j)
-\]
-Trong đó:\par
+\begin{columns}[T]
+\column{0.47\textwidth}
+\begin{block}{Input}
 \begin{itemize}
-\item \(S_j\): Slurm script ban đầu;
-\item \(U_j\): user intent;
-\item \(Q_u\): quota còn lại;
-\item \(H_t\): trạng thái cluster và queue;
-\item \(E_j\): profiling và operational evidence.
-\end{itemize}
-Đầu ra:\par
-\[
-D_j=(action,profile,predictions,uncertainty,evidence)
-\]
-\end{frame}
-
-% Source slide 26
-\begin{frame}[t,shrink=20]{4.3. Mô hình ý định người dùng}
-\small
-Intent được biểu diễn bởi:\par
-\[
-I_j=(G_j,C_j,F_j,P_j,U_j^{unc})
-\]
-Trong đó:\par
-\begin{itemize}
-\item \(G_j\): mục tiêu chính;
-\item \(C_j\): ràng buộc cứng;
-\item \(F_j\): các thay đổi tài nguyên được user cho phép;
-\item \(P_j\): các ưu tiên mềm;
-\item \(U_j^{unc}\): thông tin thiếu, mơ hồ hoặc xung đột.
-\end{itemize}
-Mô hình này giúp tách rõ constraint, preference và flexibility.\par
-\end{frame}
-
-% Source slide 27
-\begin{frame}[t,shrink=20,fragile]{4.3. Mô hình ý định người dùng}
-\small
-Ví dụ intent:\par
-\begin{quote}
-\emph{Cần hoàn thành trước 18 giờ. Có thể dùng ít GPU hơn nếu vẫn kịp deadline. Ưu tiên tiết kiệm quota.}
-\end{quote}
-Structured intent:\par
-\begin{block}{Minh họa}
-\begin{verbatim}
-{
-  "goal": {
-    "primary": "meet_deadline",
-    "secondary": "reduce_quota"
-  },
-  "hard_constraints": {
-    "deadline": "18:00"
-  },
-  "authorized_flexibility": {
-    "gpu_reduction_allowed": true
-  },
-  "preferences": [
-    "lower_gpu_seconds"
-  ]
-}
-\end{verbatim}
-\end{block}
-\end{frame}
-
-% Source slide 28
-\begin{frame}[t,shrink=20]{4.4. LLM và bộ kiểm tra xác định}
-\small
-Mô hình ngôn ngữ được sử dụng để chuyển đổi yêu cầu tự nhiên thành intent có cấu trúc.\par
-Sau đó, bộ kiểm tra xác định được dùng để:\par
-\begin{itemize}
-\item kiểm tra schema;
-\item phát hiện field không hợp lệ;
-\item phát hiện conflict;
-\item loại bỏ flexibility chưa được user cho phép;
-\item phát hiện unsupported intent;
-\item ngăn commit quá sớm.
-\end{itemize}
-LLM không trực tiếp quyết định profile cuối cùng.\par
-\end{frame}
-
-% Source slide 29
-\begin{frame}[t,shrink=20,fragile]{4.5. Sinh candidate profiles}
-\small
-Candidate profiles được sinh từ các ràng buộc:\par
-\[
-\mathcal{P}_j^{cand}=
-\{p:
-C_{cluster}(p)
-\land C_{workload}(p)
-\land C_{intent}(p)
-\land C_{quota}(p)\}
-\]
-Các bước chính:\par
-\begin{block}{Minh họa}
-\begin{verbatim}
-All combinations
-→ cluster-valid
-→ workload-valid
-→ intent-valid
-→ quota-valid
-→ candidate profiles
-\end{verbatim}
-\end{block}
-Đây là constrained search, không phải free-form generation.\par
-\end{frame}
-
-% Source slide 30
-\begin{frame}[t]{4.6. Feasibility và prediction uncertainty}
-\small
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.49\textwidth}
-\begin{block}{Feasibility kỹ thuật}
-Feasibility có thể không liên tục theo số GPU, CPU hoặc memory. Ở biên 4 GPU:\par
-\begin{itemize}
-\item một số workload chạy thành công;
-\item một số workload fail do tham số không tương thích trước compute.
-\end{itemize}
-\textbf{Cần kết hợp:}\par
-\begin{itemize}
-\item workload rule và preflight;
-\item measured evidence và prediction.
+  \item Slurm script gốc
+  \item Intent bằng ngôn ngữ tự nhiên
+  \item Quota và account của người dùng
+  \item Snapshot cluster và queue
 \end{itemize}
 \end{block}
-\end{column}
-\begin{column}{0.49\textwidth}
-\begin{block}{Prediction và uncertainty}
-Mỗi candidate profile cần được đánh giá bởi:\par
+\column{0.49\textwidth}
+\begin{block}{Output}
 \begin{itemize}
-\item runtime prediction;
-\item memory feasibility;
-\item interval hoặc upper bound;
-\item relative uncertainty width.
-\end{itemize}
-\textbf{Mô hình khảo sát:}\par
-\begin{itemize}
-\item factorized và monolithic predictor;
-\item kNN và conformal upper bound.
+  \item Intent đã cấu trúc hóa
+  \item Tập resource profile khả thi
+  \item Evidence và kết quả kiểm tra
+  \item Profile khuyến nghị hoặc câu hỏi cần làm rõ
+  \item Decision trace để kiểm tra lại
 \end{itemize}
 \end{block}
-\end{column}
+\end{columns}
+\begin{exampleblock}{Kết quả mong muốn}
+Người dùng nhận một request tốt hơn trước khi submit, không nhận một quyết định scheduling toàn hệ thống.
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}[t]{4.3. Ví dụ xuyên suốt: hiểu đúng nhu cầu người dùng}
+\small
+\begin{columns}[T]
+\column{0.39\textwidth}
+\begin{block}{Request ban đầu}
+\texttt{GPU = 4; CPU = 16}\\
+\texttt{Memory = 64G; Walltime = 4h}
+\end{block}
+\begin{block}{Intent}
+``Cần hoàn thành trước 18h. Có thể dùng ít GPU hơn nếu vẫn kịp deadline. Ưu tiên tiết kiệm quota.''
+\end{block}
+\column{0.52\textwidth}
+\begin{tabular}{@{}p{0.34\linewidth}p{0.60\linewidth}@{}}
+\toprule
+\textbf{Trường} & \textbf{Giá trị trích xuất} \\
+\midrule
+Goal & Hoàn thành trước 18h \\
+Hard constraint & Workload phải chạy được trên GPU \\
+Soft preference & Tiết kiệm quota \\
+Flexibility & Được phép giảm số GPU \\
+Uncertainty & Runtime khi đổi GPU chưa chắc chắn \\
+\bottomrule
+\end{tabular}
 \end{columns}
 \end{frame}
 
-% Source slide 32
-\begin{frame}[t,shrink=20]{4.8. Static selection và queue-aware selection}
+\begin{frame}[t]{4.4. Biểu diễn intent có cấu trúc}
 \small
-Static selection xét:\par
+\begin{columns}[T]
+\column{0.47\textwidth}
+\begin{block}{Lược đồ intent $I_j$}
 \begin{itemize}
-\item runtime;
-\item GPU-seconds;
-\item quota;
-\item prediction risk.
+  \item \texttt{goal}
+  \item \texttt{hard\_constraints}
+  \item \texttt{soft\_preferences}
+  \item \texttt{authorized\_flexibility}
 \end{itemize}
-Queue-aware selection bổ sung:\par
+\end{block}
+\column{0.47\textwidth}
+\begin{block}{Siêu dữ liệu cho quyết định an toàn}
 \begin{itemize}
-\item current occupancy;
-\item estimated waiting time;
-\item GPU fragmentation;
-\item pressure state.
+  \item \texttt{uncertainty}
+  \item \texttt{evidence\_requirements}
+  \item \texttt{missing\_fields}
+  \item nguồn và phiên bản parser
 \end{itemize}
-\[
-Turnaround(p)=Waiting(p,H_t)+Runtime(p)
-\]
-Khi queue bị pressure, profile có runtime dài hơn nhưng wait time thấp hơn có thể tạo turnaround tốt hơn.\par
+\end{block}
+\end{columns}
+\begin{alertblock}{Giới hạn thuật ngữ}
+Đây là biểu diễn intent có cấu trúc, chưa tuyên bố là một ontology đầy đủ.
+\end{alertblock}
 \end{frame}
 
-% Source slide 33
-\begin{frame}[t,shrink=20]{4.9. Cơ chế quyết định cuối cùng}
+\begin{frame}[t]{4.5. Vai trò và ranh giới của LLM}
 \small
-Hệ thống có ba action:\par
+\[
+(S_j,U_j)\xrightarrow{\mathrm{LLM}}I_j
+\]
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{LLM thực hiện}
 \begin{itemize}
-\item \textbf{commit:} đề xuất profile mới vì đủ evidence và confidence;
-\item \textbf{keep original:} giữ request ban đầu vì không có profile tốt hơn đủ rõ;
-\item \textbf{schedule probe:} cần đo thêm vì uncertainty còn cao.
+  \item trích xuất goal;
+  \item nhận diện constraints;
+  \item tách hard/soft;
+  \item phát hiện flexibility và ambiguity;
+  \item sinh IR theo schema.
 \end{itemize}
-Điểm quan trọng của giải pháp:\par
-\begin{quote}
-\emph{Hệ thống không bắt buộc phải tự động thay đổi request trong mọi trường hợp.}
-\end{quote}
+\column{0.48\textwidth}
+\textbf{LLM không thực hiện}
+\begin{itemize}
+  \item xác nhận resource/policy/quota;
+  \item chứng minh deadline;
+  \item chọn final profile;
+  \item submission không phê duyệt.
+\end{itemize}
+\end{columns}
 \end{frame}
 
-% Source slide 34
-\begin{frame}[t,shrink=20]{4.10. Khả năng kiểm chứng của quyết định}
+\begin{frame}[t]{4.6. Candidate chỉ được sinh trong phạm vi cho phép}
 \small
-Mỗi quyết định cần lưu lại:\par
-\begin{itemize}
-\item intent đã parse;
-\item ràng buộc được áp dụng;
-\item candidate profiles;
-\item profile bị loại và lý do;
-\item prediction và interval;
-\item queue snapshot;
-\item action cuối cùng;
-\item script sau khi rewrite;
-\item kết quả thực thi sau submit.
-\end{itemize}
+\begin{block}{Bốn điều kiện đồng thời}
+Cluster hỗ trợ; application chạy được; người dùng cho phép thay đổi; không vi phạm quota hoặc policy.
+\end{block}
+\centering
+\begin{tabular}{lrrrrp{0.29\linewidth}}
+\toprule
+\textbf{Profile} & \textbf{GPU} & \textbf{CPU} & \textbf{RAM} & \textbf{Time} & \textbf{Ý nghĩa} \\
+\midrule
+Original & 4 & 16 & 64G & 4h & Request ban đầu \\
+Candidate A & 2 & 16 & 64G & 5h & Giảm GPU, runtime tăng \\
+Candidate B & 1 & 16 & 64G & 7h & Tiết kiệm hơn; cần kiểm tra deadline \\
+\bottomrule
+\end{tabular}
+\vspace{0.3cm}
+\begin{alertblock}{Không tự ý đổi request}
+Nếu người dùng không cho phép thay đổi, tập candidate chỉ chứa profile gốc.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{4.7. Kiểm tra khả thi nhiều lớp}
+\small
 \[
-Intent
-\rightarrow Evidence
-\rightarrow Decision
-\rightarrow Outcome
+F(r)=F_{\mathrm{app}}(r)\land F_{\mathrm{system}}(r)\land
+F_{\mathrm{policy}}(r)\land F_{\mathrm{quota}}(r)\land F_{\mathrm{intent}}(r)
 \]
+\begin{center}
+Mỗi check trả về $\mathbb{L}_3=\{\mathrm{pass},\mathrm{fail},\mathrm{unknown}\}$.
+\end{center}
+\begin{itemize}
+  \item \textbf{fail}: loại candidate và ghi lý do.
+  \item \textbf{unknown, không tới hạn}: giữ cờ bất định để xếp hạng/giải thích.
+  \item \textbf{unknown, tới hạn}: ask-back, thu thập evidence hoặc abstain.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{4.8. Cổng evidence và xử lý bất định}
+\small
+\[
+E=(v,t_{\mathrm{obs}},\mathrm{TTL},\mathrm{source})
+\]
+\begin{itemize}
+  \item provenance và source authority;
+  \item freshness: $t_{\mathrm{obs}}$ và TTL / \texttt{valid\_until};
+  \item confidence, model/policy version;
+  \item critical unknowns và xung đột giữa nguồn;
+  \item prediction interval hoặc safety margin.
+\end{itemize}
+\begin{alertblock}{Điều kiện đi qua cổng evidence}
+Candidate chỉ đi tiếp khi evidence cho các điều kiện tới hạn đủ mới, đủ tin cậy và không xung đột chưa giải quyết.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{4.9. Lọc và xếp hạng profile}
+\small
+\[
+\mathcal{P}_j=\left\{r\in\mathcal{R}^{\mathrm{feasible}}_j
+\mid\nexists r':r'\prec r\right\}
+\]
+\begin{enumerate}
+  \item Loại mọi candidate không feasible hoặc không qua evidence gate.
+  \item Pareto filtering giữ các candidate không bị dominated.
+  \item Lexicographic selection áp dụng thứ tự preference trong $I_j$.
+  \item Nếu preference thiếu hoặc hòa, trình bày lựa chọn và hỏi người dùng.
+\end{enumerate}
+\begin{block}{Baseline, không phải luật chính}
+Weighted-sum utility chỉ dùng để so sánh trong thực nghiệm hoặc sensitivity analysis.
+\end{block}
+\end{frame}
+
+\begin{frame}[t]{4.10. Bốn hành động đầu ra}
+\small
+\begin{center}
+\begin{tabular}{p{0.34\linewidth}p{0.56\linewidth}}
+\toprule
+\textbf{Action} & \textbf{Điều kiện điển hình} \\
+\midrule
+\texttt{recommend(profile)} & Candidate khả thi, evidence đủ, preference phân giải được \\
+\texttt{ask\_back(question)} & Thiếu intent hoặc cần người dùng chọn trade-off \\
+\texttt{abstain(reason)} & Critical unknown, evidence xung đột hoặc không đủ tin cậy \\
+\texttt{keep\_original\_request} & Không có phương án tốt hơn được phép và xác nhận \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}[t]{4.11. Vết quyết định gắn với evidence}
+\small
+\begin{itemize}
+  \item original request và parsed intent $I_j$;
+  \item candidate set $\mathcal{R}_j$ và cách sinh;
+  \item evidence source, freshness, confidence;
+  \item validation result $V_j$ và critical unknowns;
+  \item Pareto dominance / lexicographic ranking;
+  \item final recommendation hoặc lý do ask-back/abstain;
+  \item timestamp, model, policy và predictor versions.
+\end{itemize}
+\begin{block}{Tính kiểm tra được}
+Trace ghi các artifact và kết quả kiểm tra có thể audit; không ghi hay yêu cầu chain-of-thought nội bộ.
+\end{block}
 \end{frame}

@@ -1,104 +1,81 @@
-\section{3. Các nghiên cứu liên quan}
+\section{3. Nghiên cứu liên quan và khoảng trống}
 
-\begin{frame}[plain]
-\centering
-\vfill
-{\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\textbf{3. Các nghiên cứu liên quan}}
-\vfill
+\begin{frame}[t]{3.1. HPC scheduling và resource request modeling}
+\small
+\begin{itemize}
+  \item Nghiên cứu scheduling tập trung queueing, priority, backfilling và allocation.
+  \item Resource request modeling cải thiện ước lượng CPU, GPU, memory và walltime.
+  \item Phần lớn interface vẫn bắt đầu từ request đã được cụ thể hóa.
+\end{itemize}
+\begin{block}{Giới hạn đối với bài toán này}
+Mục tiêu, quyền thay đổi và preference của người dùng thường không được mô hình hóa rõ trước submission.
+\end{block}
 \end{frame}
 
-% Source slide 18
-\begin{frame}[t]{3.1. LLM và alternative resource profiles}
-\footnotesize
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.49\textwidth}
-\begin{block}{LLM trong scheduling}
+\begin{frame}[t]{3.2. Moldable và malleable job scheduling}
+\small
 \begin{itemize}
-\item phân tích constraint từ mô tả tự nhiên;
-\item cân bằng nhiều mục tiêu;
-\item sinh structured output;
-\item cung cấp diễn giải bằng ngôn ngữ tự nhiên.
+  \item Moldable jobs cho phép chọn một cấu hình tài nguyên trước khi chạy.
+  \item Malleable jobs có thể thay đổi allocation trong khi thực thi.
+  \item Hai hướng này cho thấy giá trị của alternative resource shapes.
 \end{itemize}
-\end{block}
-\begin{alertblock}{Rủi ro của raw LLM output}
+\begin{alertblock}{Khoảng trống}
+Các resource/performance profile thường được giả định là đã biết; authority và ý định cho phép thay đổi chưa phải trọng tâm.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{3.3. Runtime, queue-time và resource prediction}
+\small
 \begin{itemize}
-\item sai constraint hoặc arithmetic;
-\item commit quá sớm;
-\item không tách hard constraint và preference.
+  \item Dự đoán có thể cung cấp runtime, wait time, memory hoặc failure risk.
+  \item Giá trị dự đoán phụ thuộc workload, snapshot, model version và độ mới dữ liệu.
+  \item Point estimate đơn lẻ không đủ cho constraint tới hạn như deadline.
+\end{itemize}
+\begin{block}{Nhu cầu bổ sung}
+Prediction cần đi kèm provenance, interval/confidence và quy tắc xử lý unknown trước khi dùng cho recommendation.
+\end{block}
+\end{frame}
+
+\begin{frame}[t]{3.4. LLM decision support và structured output}
+\small
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{exampleblock}{Phù hợp}
+\begin{itemize}
+  \item hiểu ngôn ngữ tự nhiên;
+  \item tách constraint/preference;
+  \item phát hiện ambiguity;
+  \item sinh schema-constrained IR.
+\end{itemize}
+\end{exampleblock}
+\column{0.48\textwidth}
+\begin{alertblock}{Không đủ thẩm quyền}
+\begin{itemize}
+  \item xác nhận partition/policy;
+  \item tính quota;
+  \item chứng minh deadline;
+  \item quyết định profile cuối;
+  \item tự động nộp job.
 \end{itemize}
 \end{alertblock}
-\end{column}
-\begin{column}{0.49\textwidth}
-\begin{block}{Moldable và heterogeneous scheduling}
-\begin{itemize}
-\item waiting time;
-\item turnaround;
-\item utilization;
-\item khả năng khai thác tài nguyên không đồng nhất.
-\end{itemize}
-\end{block}
-\begin{alertblock}{Giả định còn hạn chế}
-\begin{itemize}
-\item alternative allocations đã có sẵn;
-\item performance model đã biết;
-\item application hỗ trợ scaling;
-\item user flexibility đã được biểu diễn rõ.
-\end{itemize}
-\end{alertblock}
-\end{column}
 \end{columns}
 \end{frame}
 
-% Source slide 20
-\begin{frame}[t,shrink=20]{3.3. Các nghiên cứu về prediction và uncertainty}
-\small
-Runtime, memory và GPU usage prediction là các thành phần quan trọng trong HPC resource management.\par
-Các hướng nghiên cứu hiện có thường tập trung vào:\par
-\begin{itemize}
-\item dự đoán runtime;
-\item dự đoán memory;
-\item dự đoán utilization;
-\item sử dụng telemetry hoặc historical logs;
-\item xây dựng prediction interval.
-\end{itemize}
-Tuy nhiên, prediction thường được xem là output hoặc feature đầu vào cho scheduler, chưa luôn được ánh xạ thành quyết định commit, keep original hoặc schedule probe.\par
-\end{frame}
-
-% Source slide 21
-\begin{frame}[t,shrink=20,fragile]{3.4. Các nghiên cứu về queue-aware decision}
-\small
-Queue state có ảnh hưởng trực tiếp đến turnaround time của user.\par
-Các scheduler truyền thống như backfilling đã khai thác queue state để cải thiện hiệu quả hệ thống.\par
-Tuy nhiên, queue-aware scheduling thường hoạt động ở tầng scheduler, trong khi bài toán của chuyên đề nằm ở tầng trước submission:\par
-\begin{block}{Minh họa}
-\begin{verbatim}
-User request
-      ↓
-Profile recommendation
-      ↓
-Slurm scheduler không thay đổi
-\end{verbatim}
+\begin{frame}[t,shrink=12]{3.5. Bảng khoảng trống nghiên cứu}
+\scriptsize
+\centering
+\begin{tabular}{p{0.24\linewidth} p{0.29\linewidth} p{0.37\linewidth}}
+\toprule
+\textbf{Hướng nghiên cứu} & \textbf{Trọng tâm hiện có} & \textbf{Khoảng trống còn lại} \\
+\midrule
+HPC scheduling & Queueing, priority, allocation & User intent thường chưa được mô hình hóa tường minh \\
+Moldable jobs & Alternative resource shapes & Giả định resource/performance profiles đã biết \\
+Prediction models & Runtime hoặc resource estimation & Thường thiếu authority, provenance và uncertainty-aware recommendation \\
+LLM decision support & Diễn giải ngôn ngữ tự nhiên & Cần deterministic validation và evidence grounding \\
+\bottomrule
+\end{tabular}
+\vspace{0.25cm}
+\begin{block}{Research gap}
+Nghiên cứu hiện có chưa xem xét đầy đủ cách chuyển ý định HPC không hoàn chỉnh bằng ngôn ngữ tự nhiên thành các phương án tài nguyên được ủy quyền và có bằng chứng, dưới ràng buộc cluster thực, trước khi nộp job.
 \end{block}
-Do đó, cần tách rõ profile recommendation trước submission và scheduling decision bên trong scheduler.\par
-\end{frame}
-
-% Source slide 22
-\begin{frame}[t,shrink=20]{3.5. Đánh giá chung}
-\small
-Các nghiên cứu hiện có đã giải quyết nhiều thành phần quan trọng:\par
-\begin{itemize}
-\item LLM có thể hỗ trợ hiểu constraint và sinh structured output.
-\item Moldable scheduling cho thấy lợi ích của alternative allocation.
-\item Prediction model có thể ước lượng runtime và resource usage.
-\item Queue-aware scheduling cho thấy trạng thái hệ thống ảnh hưởng lớn đến turnaround.
-\end{itemize}
-Tuy nhiên, còn thiếu một pipeline được đánh giá end-to-end để chuyển:\par
-\[
-\text{Slurm request + natural-language intent + queue state + limited evidence}
-\]
-thành:\par
-\[
-\text{resource-profile decision có uncertainty, evidence và khả năng abstain}
-\]
-trước khi submit job.\par
 \end{frame}

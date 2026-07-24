@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" version="30.3.14">
+  <diagram name="Hinh 2.5" id="hinh-2-5">
+    <mxGraphModel dx="1500" dy="780" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="780" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="submission" value="&lt;b&gt;SUBMISSION&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;job được gửi vào hệ thống&lt;/font&gt;" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#D6E8FF;strokeColor=#4F81BD;strokeWidth=3;fontFamily=Helvetica;fontSize=17;fontColor=#17365D;align=center;verticalAlign=middle;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="120" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="pending" value="&lt;b&gt;PENDING&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;in queue&lt;/font&gt;" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=4;fontFamily=Helvetica;fontSize=18;fontColor=#6B4700;align=center;verticalAlign=middle;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="300" y="120" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="allocation" value="&lt;b&gt;RESOURCE&lt;br&gt;ALLOCATION&lt;/b&gt;" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#D6E8FF;strokeColor=#4F81BD;strokeWidth=3;fontFamily=Helvetica;fontSize=17;fontColor=#17365D;align=center;verticalAlign=middle;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="570" y="120" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="execution" value="&lt;b&gt;EXECUTION&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;job đang chạy&lt;/font&gt;" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#5B8C5A;strokeWidth=4;fontFamily=Helvetica;fontSize=18;fontColor=#315B31;align=center;verticalAlign=middle;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="840" y="120" width="200" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="completion" value="&lt;b&gt;COMPLETION&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 13px;&quot;&gt;job kết thúc&lt;/font&gt;" style="rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#5B8C5A;strokeWidth=3;fontFamily=Helvetica;fontSize=17;fontColor=#315B31;align=center;verticalAlign=middle;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="120" width="200" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#607D9B;strokeWidth=4;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="submission" target="pending"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=4;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="pending" target="allocation"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5B8C5A;strokeWidth=4;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="allocation" target="execution"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5B8C5A;strokeWidth=4;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="execution" target="completion"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="pending-factors" value="CÁC YẾU TỐ ẢNH HƯỞNG THỜI GIAN CHỜ" style="swimlane;startSize=44;horizontal=1;rounded=1;arcSize=12;container=1;pointerEvents=0;whiteSpace=wrap;html=1;fillColor=#FFF0D9;swimlaneFillColor=#FFFBF4;strokeColor=#D79B00;strokeWidth=3;dashed=1;dashPattern=7 5;fontFamily=Helvetica;fontSize=15;fontStyle=1;fontColor=#7A5100;" vertex="1" parent="1">
+          <mxGeometry x="240" y="310" width="520" height="250" as="geometry"/>
+        </mxCell>
+        <mxCell id="factor1" value="priority" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontFamily=Helvetica;fontSize=14;fontColor=#6B4700;" vertex="1" parent="pending-factors"><mxGeometry x="30" y="70" width="135" height="50" as="geometry"/></mxCell>
+        <mxCell id="factor2" value="resource availability" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontFamily=Helvetica;fontSize=14;fontColor=#6B4700;" vertex="1" parent="pending-factors"><mxGeometry x="190" y="70" width="300" height="50" as="geometry"/></mxCell>
+        <mxCell id="factor3" value="reservations" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontFamily=Helvetica;fontSize=14;fontColor=#6B4700;" vertex="1" parent="pending-factors"><mxGeometry x="30" y="145" width="135" height="50" as="geometry"/></mxCell>
+        <mxCell id="factor4" value="requested walltime" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontFamily=Helvetica;fontSize=14;fontColor=#6B4700;" vertex="1" parent="pending-factors"><mxGeometry x="190" y="145" width="145" height="50" as="geometry"/></mxCell>
+        <mxCell id="factor5" value="partition và policy" style="rounded=1;arcSize=15;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontFamily=Helvetica;fontSize=14;fontColor=#6B4700;" vertex="1" parent="pending-factors"><mxGeometry x="360" y="145" width="130" height="50" as="geometry"/></mxCell>
+        <mxCell id="pending-link" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=3;dashed=1;dashPattern=7 5;endArrow=open;endFill=0;exitX=0.5;exitY=1;entryX=0.3;entryY=0;" edge="1" parent="1" source="pending" target="pending-factors"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="wait-bar" value="QUEUE WAIT TIME" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;strokeWidth=3;fontFamily=Helvetica;fontSize=16;fontStyle=1;fontColor=#6B4700;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="130" y="640" width="540" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="run-bar" value="EXECUTION TIME" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#5B8C5A;strokeWidth=3;fontFamily=Helvetica;fontSize=16;fontStyle=1;fontColor=#315B31;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="670" y="640" width="540" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="submit-guide" value="" style="html=1;endArrow=none;dashed=1;dashPattern=5 5;strokeColor=#AAB7C4;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="130" y="220" as="sourcePoint"/><mxPoint x="130" y="640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="allocation-guide" value="" style="html=1;endArrow=none;dashed=1;dashPattern=5 5;strokeColor=#AAB7C4;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="670" y="220" as="sourcePoint"/><mxPoint x="670" y="640" as="targetPoint"/></mxGeometry></mxCell>
+        <mxCell id="complete-guide" value="" style="html=1;endArrow=none;dashed=1;dashPattern=5 5;strokeColor=#AAB7C4;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1210" y="220" as="sourcePoint"/><mxPoint x="1210" y="640" as="targetPoint"/></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

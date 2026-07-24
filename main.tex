@@ -7,6 +7,8 @@
 \usecolortheme[named=BKTemplate]{structure}
 \setbeamercolor{title}{fg=BKTemplate,bg=} 
 \setbeamertemplate{caption}[numbered]
+\setbeamertemplate{footline}{}
+\setbeamertemplate{navigation symbols}{}
 \definecolor{barBlue}{RGB}{52, 103, 176}
 \definecolor{barLightBlue}{RGB}{153, 204, 255}
 \definecolor{barOrange}{RGB}{230, 126, 34}
@@ -28,6 +30,7 @@
 \usepackage{colortbl}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
 \usepackage{subcaption}
 % \captionsetup[subfigure]{labelsep=space}
 \usepackage{amsmath}
@@ -51,14 +54,14 @@
 }
 
 %Title page
-\title[Chuyên đề 1 NCS] %optional
-{\textbf{BÁO CÁO KẾT QUẢ CHUYÊN ĐỀ 1 \\ 
-Mô hình hóa ý định người dùng trong hệ thống tính toán hiệu năng cao
-hướng tới điều phối tài nguyên có kiểm chứng}}
+\title[Chuyên đề 1 Tiến sĩ] %optional
+{\textbf{BÁO CÁO KẾT QUẢ CHUYÊN ĐỀ 1 TIẾN SĨ\\
+Mô hình hóa ý định cho khuyến nghị cấu hình tài nguyên HPC
+trước khi nộp công việc}}
 
 \subtitle{}
 
-\author[Hoàng Lê Hải Thanh] % (optional)
+\author[NCS.Hoàng Lê Hải Thanh] % (optional)
 {
   \texorpdfstring{%
     \begin{tabular}{rl}
@@ -100,6 +103,22 @@ hướng tới điều phối tài nguyên có kiểm chứng}}
   \vspace{0.05cm}
 
   {\usebeamerfont{date}\insertdate\par}
+}
+
+% Chapter divider shown whenever a new section begins.
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \vfill
+    \centering
+    {\usebeamercolor[fg]{structure}\rule{0.18\paperwidth}{1.2pt}\par}
+    \vspace{0.45cm}
+    {\usebeamerfont{title}\usebeamercolor[fg]{title}\LARGE\bfseries
+      \insertsectionhead\par}
+    \vspace{0.45cm}
+    {\usebeamercolor[fg]{structure}\rule{0.18\paperwidth}{1.2pt}\par}
+    \vfill
+  \end{frame}
 }
 
 \begin{document}
